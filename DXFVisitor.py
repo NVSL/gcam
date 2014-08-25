@@ -22,6 +22,7 @@ class DXFVisitor(EagleVisitor):
         self.flipBoard = flipBoard
         self._handle = 255
         self._buffer = StringIO.StringIO()
+        self._minCurveSideLength = 1.0
 
     def setLayer(self, l):
         self._layer = l
@@ -141,7 +142,18 @@ class DXFVisitor(EagleVisitor):
         
     def renderCircle(self,center, radius):
         vertices = []
-        c = 20
+        
+        c = 16.0;
+        while (radius * hypot(1-cos(radians(360.0/c)), -sin(radians(360.0/c)))) > self._minCurveSideLength:
+#            print c
+ #           print "r' =  " + str(hypot(1-cos(radians(360.0/c)), -sin(radians(360.0/c))))
+            c = c * 2.0
+
+        c = max(c, 16)
+        #print "r = " + str(radius) + " c = " + str(c)
+        #print "r' =  " + str(hypot(1-cos(radians(360.0/c)), -sin(radians(360.0/c))))
+        #print c
+        c = int(c) + 1
         for i in range(0,c+1):
             theta = i*(360.0/c)
             p = (radius * cos(radians(theta)), radius * sin(radians(theta)))
@@ -197,7 +209,9 @@ class DXFVisitor(EagleVisitor):
 #            print "radius = " + str(radius)
 #            print "center = " + str(c)
 
-            steps = 10;
+            steps = 16.0;
+            while radius * hypot(1-cos(radians(curve/steps)), -sin(radians(curve/steps))) > self._minCurveSideLength:
+                steps = steps * 2.0
 
             startAngle = degrees(atan2(y1-c[1], x1-c[0]))
             endAngle = degrees(atan2(y2-c[1], x2-c[0]))
@@ -205,6 +219,7 @@ class DXFVisitor(EagleVisitor):
 #            print str(endAngle - startAngle) + " " + str(curve)
 
             vertices = []
+            steps = int(steps) + 1
             for i in range(0,steps + 1):
                 theta = startAngle + i*(curve/steps)
                 p = (radius * cos(radians(theta)) + c[0], radius * sin(radians(theta)) + c[1])
@@ -212,7 +227,6 @@ class DXFVisitor(EagleVisitor):
            # print vertices
             
             self.renderPolyLine(vertices)
-
             
             # sweep = "+" if curve > 0 else "-"
             # curve = -curve if curve < 0 else curve
