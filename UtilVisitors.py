@@ -1,4 +1,6 @@
 from EagleVisitor import *
+from EagleError import *
+
 
 class EchoVisitor(EagleVisitor):
 

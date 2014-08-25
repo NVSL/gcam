@@ -8,6 +8,7 @@ import DXFTemplate
 from matrix import *
 from Homogeneous2D import *
 import StringIO
+import EagleError
 
 class DXFVisitor(EagleVisitor):
     transformStack = []
@@ -77,7 +78,7 @@ class DXFVisitor(EagleVisitor):
         return translate2D(x,y)
 
     def preTransform(self, element, x=None, y=None):
-        transform = identity2D() * self.computeRotation(element) * self.computeTranslation(element, x, y)
+        transform = self.computeTranslation(element, x, y)* self.computeRotation(element) 
         self.pushTransform(transform)
 
     def postTransform(self, element,x=None, y=None):
@@ -113,6 +114,7 @@ class DXFVisitor(EagleVisitor):
         self._buffer.write(code + "\n" + value + "\n")
         
     def renderLine(self, start, end):
+        #print [start,end]
         self._handle += 1
         #print self.currentTransform()
         sp = tuple2D(self.currentTransform() * point2D(start))
@@ -131,10 +133,15 @@ class DXFVisitor(EagleVisitor):
         self.dxf_insert_code(  '21', '%f' % ep[1] )
         self.dxf_insert_code(  '31', '0.0' )
 
+        # print(  '10', '%f' % sp[0] ,"\n")
+        # print(  '20', '%f' % sp[1] ,"\n")
+        # print(  '11', '%f' % ep[0] ,"\n")
+        # print(  '21', '%f' % ep[1] ,"\n")
+
         
     def renderCircle(self,center, radius):
         vertices = []
-        c = 50
+        c = 20
         for i in range(0,c+1):
             theta = i*(360.0/c)
             p = (radius * cos(radians(theta)), radius * sin(radians(theta)))
@@ -164,13 +171,49 @@ class DXFVisitor(EagleVisitor):
 
     def wire_pre(self, e):
         if e.get("curve") and e.get("curve") != "0":
-            pass
-            # x1 = float(e.get("x1"))
-            # x2 = float(e.get("x2"))
-            # y1 = float(e.get("y1"))
-            # y2 = float(e.get("y2"))
+            x1 = float(e.get("x1"))
+            x2 = float(e.get("x2"))
+            y1 = float(e.get("y1"))
+            y2 = float(e.get("y2"))
 
-            # curve = float(e.get("curve"))
+            curve = float(e.get("curve"))
+           
+            adj = atan2((y2-y1),(x2-x1))
+#            print "adj = "  + str(degrees(adj))
+            rotation = rotate2D(adj)
+            rotationInv = rotate2D(-adj)
+            (x1prime, y1prime) = tuple2D(rotation * point2D((x1,y1)))
+            (x2prime, y2prime) = tuple2D(rotation * point2D((x2,y2)))
+
+#            print [x1,y1,x2,y2,x1prime,y1prime,x2prime,y2prime]
+
+            theta = curve/2.0
+            l = hypot((x2-x1), (y2-y1))/2
+            a = l * sin(radians(90-theta))/sin(radians(theta))
+            cprime = ((x2prime-x1prime)/2 + x1prime,a+y1prime)
+#            print "cprime = " + str(cprime)
+            c = tuple2D(rotationInv * point2D(cprime))
+            radius = hypot(c[0]-x1,c[1]-y1)
+#            print "radius = " + str(radius)
+#            print "center = " + str(c)
+
+            steps = 10;
+
+            startAngle = degrees(atan2(y1-c[1], x1-c[0]))
+            endAngle = degrees(atan2(y2-c[1], x2-c[0]))
+#            print [startAngle, endAngle]
+#            print str(endAngle - startAngle) + " " + str(curve)
+
+            vertices = []
+            for i in range(0,steps + 1):
+                theta = startAngle + i*(curve/steps)
+                p = (radius * cos(radians(theta)) + c[0], radius * sin(radians(theta)) + c[1])
+                vertices.append((round(p[0],3), round(p[1],3)))
+           # print vertices
+            
+            self.renderPolyLine(vertices)
+
+            
             # sweep = "+" if curve > 0 else "-"
             # curve = -curve if curve < 0 else curve
 
