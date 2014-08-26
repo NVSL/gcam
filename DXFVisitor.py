@@ -243,7 +243,7 @@ class DXFVisitor(EagleVisitor):
     ########################################
 
     def rectangle_pre(self, e):
-        ET.dump(e)
+#        ET.dump(e)
         x1 = float(e.get("x1"))
         x2 = float(e.get("x2"))
         y1 = float(e.get("y1"))
