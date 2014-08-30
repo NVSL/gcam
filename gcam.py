@@ -13,6 +13,7 @@ import svgwrite
 import math
 import SVGVisitor 
 import DXFVisitor 
+import DXFSVGVisitor 
 import UtilVisitors
 from GadgetCAM import *
 
@@ -38,6 +39,8 @@ execfile(args.gcamfile[0])
 
 if args.format[0].upper() == "SVG":
     SVGVisitor.SVGVisitor(args.draworigins, args.output[0], args.flipboard).visit(board.getRoot())
+elif args.format[0].upper() == "DXFSVG":
+    DXFSVGVisitor.DXFSVGVisitor(args.output[0], args.flipboard).visit(board.getRoot())
 elif args.format[0].upper() == "DXF":
     DXFVisitor.DXFVisitor(args.output[0], args.flipboard).visit(board.getRoot())
 else:

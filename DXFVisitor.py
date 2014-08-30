@@ -15,6 +15,9 @@ class DXFVisitor(EagleVisitor):
     dtg = None
     _layer = "Layer 1"
     _buffer = StringIO.StringIO()
+    output = ""
+    flipBoard = False
+
     def __init__(self, output, flipBoard):
         self.transformStack = []
         self.dwg = None
@@ -270,3 +273,5 @@ class DXFVisitor(EagleVisitor):
         
 #    def text_pre(self, e):
 #        raise Exception("Can't render text in DXF")
+
+

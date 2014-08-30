@@ -103,7 +103,7 @@ class SVGVisitor(EagleVisitor):
     #########################################
 
     def drawing_pre(self, element):
-        self.dwg = svgwrite.Drawing(self.output, size=("1000mm","1000mm"), viewBox="0 0 1000 1000")
+        self.dwg = svgwrite.Drawing(self.output, size=("100mm","100mm"), viewBox="0 0 100 100")
         self.pushGroup(self.dwg)
         if self.flipBoard:
             g = self.dwg.g(transform="scale(-1,-1)")
