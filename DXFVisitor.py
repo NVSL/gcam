@@ -9,6 +9,7 @@ from matrix import *
 from Homogeneous2D import *
 import StringIO
 import EagleError
+import DXFUtil
 
 class DXFVisitor(EagleVisitor):
     transformStack = []
@@ -96,6 +97,7 @@ class DXFVisitor(EagleVisitor):
             self.pushTransform(scale2D(-1,1))
         else:
             self.pushTransform(identity2D())
+        self.pushTransform(scale2D(1,-1))
 
     def drawing_post(self, element):
         #print self._buffer.getvalue()
@@ -114,28 +116,15 @@ class DXFVisitor(EagleVisitor):
 
     #########################################
 
-    def dxf_insert_code(self, code, value):
-        self._buffer.write(code + "\n" + value + "\n")
-        
     def renderLine(self, start, end):
-        #print [start,end]
+        # print [start,end]
         self._handle += 1
-        #print self.currentTransform()
+        # print self.currentTransform()
         sp = tuple2D(self.currentTransform() * point2D(start))
         ep = tuple2D(self.currentTransform() * point2D(end))
-#    def dxf_line(self,layer,csp):
-        self.dxf_insert_code(   '0', 'LINE' )
-        self.dxf_insert_code(   '8', self._layer )
-        self.dxf_insert_code(  '62', '4' )
-        self.dxf_insert_code(   '5', '%x' % self._handle )
-        self.dxf_insert_code( '100', 'AcDbEntity' )
-        self.dxf_insert_code( '100', 'AcDbLine' )
-        self.dxf_insert_code(  '10', '%f' % sp[0] )
-        self.dxf_insert_code(  '20', '%f' % sp[1] )
-        self.dxf_insert_code(  '30', '0.0' )
-        self.dxf_insert_code(  '11', '%f' % ep[0] )
-        self.dxf_insert_code(  '21', '%f' % ep[1] )
-        self.dxf_insert_code(  '31', '0.0' )
+        # def dxf_line(self,layer,csp):
+
+        DXFUtil.addLine(self._buffer, sp, ep, self._layer, self._handle)
 
         # print(  '10', '%f' % sp[0] ,"\n")
         # print(  '20', '%f' % sp[1] ,"\n")
@@ -148,14 +137,14 @@ class DXFVisitor(EagleVisitor):
         
         c = 16.0;
         while (radius * hypot(1-cos(radians(360.0/c)), -sin(radians(360.0/c)))) > self._minCurveSideLength:
-#            print c
- #           print "r' =  " + str(hypot(1-cos(radians(360.0/c)), -sin(radians(360.0/c))))
+            # print c
+            # print "r' =  " + str(hypot(1-cos(radians(360.0/c)), -sin(radians(360.0/c))))
             c = c * 2.0
 
         c = max(c, 16)
-        #print "r = " + str(radius) + " c = " + str(c)
-        #print "r' =  " + str(hypot(1-cos(radians(360.0/c)), -sin(radians(360.0/c))))
-        #print c
+        # print "r = " + str(radius) + " c = " + str(c)
+        # print "r' =  " + str(hypot(1-cos(radians(360.0/c)), -sin(radians(360.0/c))))
+        # print c
         c = int(c) + 1
         for i in range(0,c+1):
             theta = i*(360.0/c)
