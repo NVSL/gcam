@@ -70,7 +70,7 @@ class DXFVisitor(EagleVisitor):
             scale = identity2D()
             r = 0
 
-        return rotate2D(radians(r)) * scale
+        return rotate2D(radians(-r)) * scale
     
     def computeTranslation(self, e, x, y):
         if x is None:
