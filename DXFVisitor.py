@@ -64,13 +64,13 @@ class DXFVisitor(EagleVisitor):
                 r = float(e.get("rot")[2:])
                 scale = scale2D(-1,1)
             else:
-                r = float(e.get("rot")[1:])
+                r = -float(e.get("rot")[1:])
                 scale = identity2D()
         else:
             scale = identity2D()
             r = 0
 
-        return rotate2D(radians(-r)) * scale
+        return rotate2D(radians(r)) * scale
     
     def computeTranslation(self, e, x, y):
         if x is None:
