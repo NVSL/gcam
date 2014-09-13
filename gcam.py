@@ -23,7 +23,8 @@ parser.add_argument("--brd", required=True,  type=str, nargs=1, dest='brdfile', 
 parser.add_argument("--output", required=True, type=str, nargs=1, dest='output', help="output svg file")
 parser.add_argument("--gcam", required=True, type=str, nargs=1, dest='gcamfile', help="gcam file")
 parser.add_argument("--draworigins", required=False, action='store_true', dest='draworigins', help="Draw origins for sub elments?")
-parser.add_argument("--flip", action='store_true', dest='flipboard', help="exclude vias and holes for pads.")
+parser.add_argument("--flip", action='store_true', dest='flipboard', help="flip the board")
+#parser.add_argument("--mirror", action='store_true', dest='mirror', help="mirror the board")
 parser.add_argument("--format", required=False, default="SVG", type=str, nargs=1, dest='format', help="output format")
 
 args = parser.parse_args()

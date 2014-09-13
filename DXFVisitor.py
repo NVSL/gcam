@@ -18,7 +18,6 @@ class DXFVisitor(EagleVisitor):
     _buffer = StringIO.StringIO()
     output = ""
     flipBoard = False
-
     def __init__(self, output, flipBoard):
         self.transformStack = []
         self.dwg = None
@@ -27,6 +26,7 @@ class DXFVisitor(EagleVisitor):
         self._handle = 255
         self._buffer = StringIO.StringIO()
         self._minCurveSideLength = 1.0
+
 
     def setLayer(self, l):
         self._layer = l

@@ -8,12 +8,14 @@ class SVGVisitor(EagleVisitor):
     groupStack = []
     dtg = None
     _drawOrigins = False
+
     def __init__(self, drawOrigins, output, flipBoard):
         self.groupStack = []
         self.dwg = None
         self._drawOrigins = drawOrigins
         self.output = output
         self.flipBoard = flipBoard
+
 
     def pushGroup(self, g):
         if len(self.groupStack) > 0:
@@ -103,7 +105,8 @@ class SVGVisitor(EagleVisitor):
     #########################################
 
     def drawing_pre(self, element):
-        self.dwg = svgwrite.Drawing(self.output, size=("100mm","100mm"), viewBox="0 0 100 100")
+        self.dwg = svgwrite.Drawing(self.output, size=("100mm","100mm"), viewBox="-50 -50 100 100")
+#        self.dwg = svgwrite.Drawing(self.output, size=("100mm","100mm"), viewBox="0 0 100 100")
         self.pushGroup(self.dwg)
         if self.flipBoard:
             g = self.dwg.g(transform="scale(-1,-1)")
