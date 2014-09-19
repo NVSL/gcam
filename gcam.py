@@ -20,13 +20,6 @@ import DXFTemplate
 import GadgetronConfig as gtron
 
 def runGCAM(board,gcam,flipboard,format,output, layer, drawOrigins=False):
-    print board
-    print gcam
-    print flipboard
-    print format
-    print output
-    print layer
-    print drawOrigins
 
     board.instantiatePackages()
 
@@ -71,7 +64,7 @@ if __name__ == "__main__":
     else:
         print "Unkwon format: " + args.format[0]
         assert(False)
-    print out
+
     output = runGCAM(board=board,
                      gcam=args.gcamfile[0],
                      flipboard=args.flipboard,
