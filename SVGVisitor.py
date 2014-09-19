@@ -11,9 +11,8 @@ class SVGVisitor(EagleVisitor):
 
     def __init__(self, drawOrigins, output, flipBoard):
         self.groupStack = []
-        self.dwg = None
+        self.dwg = output
         self._drawOrigins = drawOrigins
-        self.output = output
         self.flipBoard = flipBoard
 
 
@@ -47,10 +46,12 @@ class SVGVisitor(EagleVisitor):
     def computeSVGRotation(self, e):
         if e.get("rot") is not None:
             if e.get("rot")[0] == "M":
+                assert(0) # this code is wrong but I don't know why.
                 r = e.get("rot")[2:]
+#                r = e.get("rot")[2:]
                 scale = "scale(-1,1)"
             else:
-                r = e.get("rot")[1:]
+                r = str(-float(e.get("rot")[1:]))
                 scale = ""
         else:
             scale = ""
@@ -105,8 +106,6 @@ class SVGVisitor(EagleVisitor):
     #########################################
 
     def drawing_pre(self, element):
-        self.dwg = svgwrite.Drawing(self.output, size=("100mm","100mm"), viewBox="-50 -50 100 100")
-#        self.dwg = svgwrite.Drawing(self.output, size=("100mm","100mm"), viewBox="0 0 100 100")
         self.pushGroup(self.dwg)
         if self.flipBoard:
             g = self.dwg.g(transform="scale(-1,-1)")

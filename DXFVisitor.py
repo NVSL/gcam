@@ -14,19 +14,17 @@ import DXFUtil
 class DXFVisitor(EagleVisitor):
     transformStack = []
     dtg = None
-    _layer = "Layer 1"
     _buffer = StringIO.StringIO()
-    output = ""
     flipBoard = False
-    def __init__(self, output, flipBoard):
+    def __init__(self, output, flipBoard, layer):
         self.transformStack = []
-        self.dwg = None
         self.output = output
         self.flipBoard = flipBoard
         self._handle = 255
         self._buffer = StringIO.StringIO()
         self._minCurveSideLength = 1.0
-
+        self._layer = layer
+    
 
     def setLayer(self, l):
         self._layer = l
@@ -100,11 +98,7 @@ class DXFVisitor(EagleVisitor):
         self.pushTransform(scale2D(1,-1))
 
     def drawing_post(self, element):
-        #print self._buffer.getvalue()
-        f = open(self.output, "wb")
-        f.write(DXFTemplate.r14_header)
-        f.write(self._buffer.getvalue())
-        f.write(DXFTemplate.r14_footer)
+        self.output.write(self._buffer.getvalue())
 
     #########################################
 
