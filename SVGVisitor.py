@@ -8,13 +8,13 @@ class SVGVisitor(EagleVisitor):
     groupStack = []
     dtg = None
     _drawOrigins = False
-
-    def __init__(self, drawOrigins, output, flipBoard):
+    
+    def __init__(self, drawOrigins, output, flipBoard,mirror):
         self.groupStack = []
         self.dwg = output
         self._drawOrigins = drawOrigins
         self.flipBoard = flipBoard
-
+        self._mirrored = mirrored
 
     def pushGroup(self, g):
         if len(self.groupStack) > 0:
@@ -112,6 +112,11 @@ class SVGVisitor(EagleVisitor):
         else:
             g = self.dwg.g(transform="scale(1,-1)")
         self.pushGroup(g)
+
+        if self._mirrored:
+            g = self.dwg.g(transform="scale(-1,1)")
+            self.pushGroup(g)
+
 
     def drawing_post(self, element):
         self.dwg.save()

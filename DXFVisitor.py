@@ -16,7 +16,7 @@ class DXFVisitor(EagleVisitor):
     dtg = None
     _buffer = StringIO.StringIO()
     flipBoard = False
-    def __init__(self, output, flipBoard, layer):
+    def __init__(self, output, flipBoard, layer,mirrored):
         self.transformStack = []
         self.output = output
         self.flipBoard = flipBoard
@@ -24,6 +24,7 @@ class DXFVisitor(EagleVisitor):
         self._buffer = StringIO.StringIO()
         self._minCurveSideLength = 1.0
         self._layer = layer
+        self._mirrored = mirrored
     
 
     def setLayer(self, l):
@@ -96,6 +97,10 @@ class DXFVisitor(EagleVisitor):
         else:
             self.pushTransform(identity2D())
         self.pushTransform(scale2D(1,-1))
+
+        if self._mirrored:
+            self.pushTransform(scale2D(-1,1))
+
 
     def drawing_post(self, element):
         self.output.write(self._buffer.getvalue())

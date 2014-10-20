@@ -19,7 +19,7 @@ from GadgetCAM import *
 import DXFTemplate 
 import GadgetronConfig as gtron
 
-def runGCAM(board,gcam,flipboard,format,output, layer, drawOrigins=False):
+def runGCAM(board,gcam,flipboard,format,output, layer, mirrored, drawOrigins=False):
 
     board.instantiatePackages()
 
@@ -30,11 +30,11 @@ def runGCAM(board,gcam,flipboard,format,output, layer, drawOrigins=False):
     execfile(gcam)
 
     if format.upper() == "SVG":
-        SVGVisitor.SVGVisitor(drawOrigins, output, flipboard).visit(board.getRoot())
+        SVGVisitor.SVGVisitor(drawOrigins, output, flipboard, mirrored).visit(board.getRoot())
     elif format.upper() == "DXFSVG":
-        DXFSVGVisitor.DXFSVGVisitor(output, flipboard, layer).visit(board.getRoot())
+        DXFSVGVisitor.DXFSVGVisitor(output, flipboard, layer,mirrored).visit(board.getRoot())
     elif format.upper() == "DXF":
-        DXFVisitor.DXFVisitor(output, flipboard, layer).visit(board.getRoot())
+        DXFVisitor.DXFVisitor(output, flipboard, layer,mirrored).visit(board.getRoot())
     else:
         print "Unknownformaton format: " + format
         assert(False)
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument("--gcam", required=True, type=str, nargs=1, dest='gcamfile', help="gcam file")
 #    parser.add_argument("--draworigins", required=False, action='store_true', dest='draworigins', help="Draw origins for sub elments?")
     parser.add_argument("--flip", action='store_true', dest='flipboard', help="flip the board")
-#parser.add_argument("--mirror", action='store_true', dest='mirror', help="mirror the board")
+    parser.add_argument("--mirror", action='store_true', dest='mirror', help="output the data flip horizontally")
     parser.add_argument("--format", required=False, default="SVG", type=str, nargs=1, dest='format', help="output format")
     args = parser.parse_args()
 
@@ -70,7 +70,8 @@ if __name__ == "__main__":
                      flipboard=args.flipboard,
                      format=args.format[0],
                      output=out,
-                     layer="Layer0");
+                     layer="Layer0",
+                     mirrored=args.mirror);
     
     if args.format[0].upper() == "SVG" or args.format[0].upper() == "DXFSVG":
         out.save()

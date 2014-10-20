@@ -6,9 +6,9 @@ class DXFSVGVisitor(DXFVisitor.DXFVisitor):
     
     dwg = None
 
-    def __init__(self, output, flipBoard, layer):
+    def __init__(self, output, flipBoard, layer,mirrored):
         self.dwg = output
-        DXFVisitor.DXFVisitor.__init__(self, output, flipBoard, layer)
+        DXFVisitor.DXFVisitor.__init__(self, output, flipBoard, layer,mirrored)
         
     def drawing_post(self, element):
         pass
