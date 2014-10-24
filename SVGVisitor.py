@@ -9,7 +9,7 @@ class SVGVisitor(EagleVisitor):
     dtg = None
     _drawOrigins = False
     
-    def __init__(self, drawOrigins, output, flipBoard,mirror):
+    def __init__(self, drawOrigins, output, flipBoard,mirrored):
         self.groupStack = []
         self.dwg = output
         self._drawOrigins = drawOrigins
