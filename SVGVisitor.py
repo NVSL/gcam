@@ -10,11 +10,11 @@ class SVGVisitor(EagleVisitor):
     _drawOrigins = False
     
     def __init__(self, drawOrigins, output, flipBoard,mirrored):
-        self.groupStack = []
-        self.dwg = output
-        self._drawOrigins = drawOrigins
-        self.flipBoard = flipBoard
-        self._mirrored = mirrored
+        self.groupStack = []  #these groups represent a stack of coordinate systems we will render items into.
+        self.dwg = output #output drawing
+        self._drawOrigins = drawOrigins  # flag to draw origins (for debugging)
+        self.flipBoard = flipBoard  # flag if we are drawing the back side of the board
+        self._mirrored = mirrored   # flag if we the output should be mirrored.
 
     def pushGroup(self, g):
         if len(self.groupStack) > 0:
@@ -28,7 +28,7 @@ class SVGVisitor(EagleVisitor):
     def popGroup(self):
         self.groupStack.pop()
 
-    def targeted(self, element):
+    def targeted(self, element):  
         if element.get("camstyled") and element.get("camstyled") == "1":
             if element.get("cam_include"):
                 return element.get("cam_include") == "1"
@@ -37,10 +37,17 @@ class SVGVisitor(EagleVisitor):
         else:
             return False
 
-    def decendFilter(self,element):
+    def decendFilter(self,element):  
+        # this is inhereted from XML visitor.  It is 
+        # a predicate that returns true if we should
+        # decend into this tag.
+        
         return True;
     
     def visitFilter(self, element):
+        # this is inhereted from XML visitor.  It is a predicate that returns
+        # true if we should visit the element (it is possible to decend into
+        # the element without visiting it).
         return self.targeted(element)
 
     def computeSVGRotation(self, e):
@@ -105,6 +112,7 @@ class SVGVisitor(EagleVisitor):
 
     #########################################
 
+    # *_pre functions are called on the element before decending into it.  If you just define _pre functions you'll get a pre-order traversal. 
     def drawing_pre(self, element):
         self.pushGroup(self.dwg)
         if self.flipBoard:
@@ -117,7 +125,7 @@ class SVGVisitor(EagleVisitor):
             g = self.dwg.g(transform="scale(-1,1)")
             self.pushGroup(g)
 
-
+    # *_post functions are called after decending into it and visiting all its decedents.   If you just define _post functions, you'll get a post-order traversal.
     def drawing_post(self, element):
         self.dwg.save()
 
@@ -167,6 +175,7 @@ class SVGVisitor(EagleVisitor):
             y1 = float(e.get("y1"))
             y2 = float(e.get("y2"))
 
+            # magical math convert eagle arcs into SVG arcs.
             curve = float(e.get("curve"))
             sweep = "+" if curve > 0 else "-"
             curve = -curve if curve < 0 else curve

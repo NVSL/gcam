@@ -20,15 +20,19 @@ import DXFTemplate
 import GadgetronConfig as gtron
 
 def runGCAM(board,gcam,flipboard,format,output, layer, mirrored, drawOrigins=False):
-
+    
+    # This step expand each 'element' tag to include a copy of the package from
+    # the library.  Now, we can style/manipulate/etc. each of the instances
+    # independently.
     board.instantiatePackages()
 
-    UtilVisitors.NamedLayers(EagleLayers(board.getLayers())).visit(board.getRoot())
-    UtilVisitors.FlipVisitor(EagleLayers(board.getLayers()), flipboard).visit(board.getRoot())
+    UtilVisitors.NamedLayers(EagleLayers(board.getLayers())).visit(board.getRoot())  # Replace layer numbers with names 
+    UtilVisitors.FlipVisitor(EagleLayers(board.getLayers()), flipboard).visit(board.getRoot()) # flip everything, if we are rendering the backside of the board.
 
+    execfile(gcam) # execute the gcam file.
 
-    execfile(gcam)
-
+    # At this point the the board is full of styling attributes.  Now, we can
+    # convert it to the output format using the appropriate visitor.
     if format.upper() == "SVG":
         SVGVisitor.SVGVisitor(drawOrigins, output, flipboard, mirrored).visit(board.getRoot())
     elif format.upper() == "DXFSVG":
