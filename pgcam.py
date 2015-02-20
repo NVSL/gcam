@@ -9,9 +9,9 @@ from EagleBoard import *
 import pipes
 import svgwrite
 from EagleLayers import *
-import svgwrite
 import math
 import SVGVisitor 
+import PSVGVisitor 
 import DXFVisitor 
 import DXFSVGVisitor 
 import UtilVisitors
@@ -26,25 +26,39 @@ def runGCAM(board,gcam,flipboard,format,output, layer, mirrored, drawOrigins=Fal
     # independently.
     board.instantiatePackages()
 
-    UtilVisitors.NamedLayers(EagleLayers(board.getLayers())).visit(board.getRoot())  # Replace layer numbers with names 
-    UtilVisitors.FlipVisitor(EagleLayers(board.getLayers()), flipboard).visit(board.getRoot()) # flip everything, if we are rendering the backside of the board.
+    # Replace layer numbers with names 
+    UtilVisitors.NamedLayers(EagleLayers(board.getLayers())).visit(board.getRoot())  
+    # flip everything, if we are rendering the backside of the board.
+    UtilVisitors.FlipVisitor(EagleLayers(board.getLayers()), flipboard).visit(board.getRoot()) 
+    
+    # Change the Name and Value attribute tag for each element to text tags for display
+    UtilVisitors.RetagNameAttribute(EagleLayers(board.getLayers())).visit(board.getRoot())
+    UtilVisitors.RetagValueAttribute(EagleLayers(board.getLayers())).visit(board.getRoot())
 
-    # UtilVisitors.FillNameVariable(EagleLayers(board.getLayers())).visit(board.getRoot())
-    # UtilVisitors.FillValueVariable(EagleLayers(board.getLayers())).visit(board.getRoot())
+    # Remove the Name and Value text tags from the library
+    UtilVisitors.RemoveNameVariable(EagleLayers(board.getLayers())).visit(board.getRoot())
+    UtilVisitors.RemoveValueVariable(EagleLayers(board.getLayers())).visit(board.getRoot())
 
+    # Transforms the texts within the Elements that aren't part of tName or bName
+    UtilVisitors.TranformElementText(EagleLayers(board.getLayers())).visit(board.getRoot())
 
     execfile(gcam) # execute the gcam file.
 
     # At this point the the board is full of styling attributes.  Now, we can
     # convert it to the output format using the appropriate visitor.
+    output_tree = board.getET()
+    output_tree.write("testoutput.txt", encoding="UTF-8")
+
     if format.upper() == "SVG":
         SVGVisitor.SVGVisitor(drawOrigins, output, flipboard, mirrored).visit(board.getRoot())
     elif format.upper() == "DXFSVG":
         DXFSVGVisitor.DXFSVGVisitor(output, flipboard, layer,mirrored).visit(board.getRoot())
     elif format.upper() == "DXF":
         DXFVisitor.DXFVisitor(output, flipboard, layer,mirrored).visit(board.getRoot())
+    elif format.upper() == "PSVG":
+        PSVGVisitor.PSVGVisitor(drawOrigins, output, flipboard, mirrored).visit(board.getRoot())
     else:
-        print "Unknownformaton format: " + format
+        print "Unknown formaton format: " + format
         assert(False)
 
 if __name__ == "__main__":
@@ -58,10 +72,9 @@ if __name__ == "__main__":
     parser.add_argument("--mirror", action='store_true', dest='mirror', help="output the data flip horizontally")
     parser.add_argument("--format", required=False, default="SVG", type=str, nargs=1, dest='format', help="output format")
     args = parser.parse_args()
-
     board = EagleBoard(args.brdfile[0])
 
-    if args.format[0].upper() == "SVG" or args.format[0].upper() == "DXFSVG":
+    if args.format[0].upper() == "SVG" or args.format[0].upper() == "PSVG" or args.format[0].upper() == "DXFSVG":
         out = svgwrite.Drawing(args.output[0],
                                size=(gtron.config.DEFAULT_SVG_WIDTH,
                                      gtron.config.DEFAULT_SVG_WIDTH), 
@@ -70,7 +83,7 @@ if __name__ == "__main__":
         out = open(args.output[0], "wb")
         out.write(DXFTemplate.r14_header)
     else:
-        print "Unkwon format: " + args.format[0]
+        print "Unknwon format: " + args.format[0]
         assert(False)
 
     output = runGCAM(board=board,
@@ -81,11 +94,11 @@ if __name__ == "__main__":
                      layer="Layer0",
                      mirrored=args.mirror);
     
-    if args.format[0].upper() == "SVG" or args.format[0].upper() == "DXFSVG":
+    if args.format[0].upper() == "SVG" or args.format[0].upper() == "PSVG" or args.format[0].upper() == "DXFSVG":
         out.save()
     elif args.format[0].upper() == "DXF":
         out.write(DXFTemplate.r14_footer)
     else:
-        print "Unkwon format: " + args.format[0]
+        print "Unknwon format: " + args.format[0]
         assert(False)
             

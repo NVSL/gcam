@@ -55,7 +55,6 @@ class SVGVisitor(EagleVisitor):
             if e.get("rot")[0] == "M":
                 assert(0) # this code is wrong but I don't know why.
                 r = e.get("rot")[2:]
-#                r = e.get("rot")[2:]
                 scale = "scale(-1,1)"
             else:
                 r = str(-float(e.get("rot")[1:]))
