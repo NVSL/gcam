@@ -357,14 +357,15 @@ class PSVGVisitor(EagleVisitor):
     def drawHoles(self):
         p = self._dimension_path
         e = self._dimension_element
-        for hole_attr in self._holes:
-            x = hole_attr["x"]
-            y = hole_attr["y"]
-            r = hole_attr["radius"]
-            p.push("M " + str(x) + " " + str(y))
-            p.push("m " + str(-r) + " " + str(0))
-            p.push("a " + str(r) + "," + str(r) + " 0 1, 1 " + str(2*r) + " ,0")
-            p.push("a " + str(r) + "," + str(r) + " 0 1, 1 " + str(-2*r) + " ,0")
+        if p:
+            for hole_attr in self._holes:
+                x = hole_attr["x"]
+                y = hole_attr["y"]
+                r = hole_attr["radius"]
+                p.push("M " + str(x) + " " + str(y))
+                p.push("m " + str(-r) + " " + str(0))
+                p.push("a " + str(r) + "," + str(r) + " 0 1, 1 " + str(2*r) + " ,0")
+                p.push("a " + str(r) + "," + str(r) + " 0 1, 1 " + str(-2*r) + " ,0")
         # we don't need to styleAndAttach here because we already did that in drawWire for dimension_wires
         # self.styleAndAttach(e, p)
 
@@ -701,10 +702,13 @@ class PSVGVisitor(EagleVisitor):
         
     ########################################
 
+    def plain_pre(self, e):
+        pass
+
     def plain_post(self, e):
         print "drawing dimension"
         self.preTransform(e)
-        self.drawWirePath(e, self._dimension_wires)
+        self.drawWirePath(e, self._dimension_wires)#, attached=True, attached_element=self._plain_group)
 
         self._plain_element = e
         self._plain_group = self.dwg.g()
@@ -751,7 +755,6 @@ class PSVGVisitor(EagleVisitor):
     def text_pre(self, e):
         self.preTextTransform(e)
         style = []
-
         style.append(["font-size", e.get("size")])
 
         if e.get("font") == "vector":
@@ -799,4 +802,5 @@ class PSVGVisitor(EagleVisitor):
 
         text.update({"style": ";".join(map(lambda x:":".join(x), style))})
         self.styleAndAttach(e, text)
+
         self.postTextTransform(e)

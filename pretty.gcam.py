@@ -28,14 +28,19 @@ CamPass(board,
 # black lines.
 CamPass(board,
         paths=[".//plain", ".//plain/*"], 
-        layers=[None, "Dimension"],
+        layers=[None, "Dimension", "tPlace", "tNames", "tValue"],
         default=Style(stroke_width="0.1", 
                       fill="#006600", 
                       fill_rule="evenodd",
                       stroke="black",
                       stroke_linecap="round",
                       include="1"),
-        )
+        refinements={"text" : Style(fill="#CFCFCF",
+                                    stroke="#CFCFCF",
+                                    stroke_width="0.1",
+                                    ),
+                    }
+        ) 
 
 # Remember, we copied each package to be a child of the element tags, so we can now refer 
 # to the holes and pads they contain.  These holes will be rendered in thin, black lines.
