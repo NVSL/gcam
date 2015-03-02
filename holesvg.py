@@ -55,7 +55,8 @@ if __name__ == "__main__":
                                      gtron.config.DEFAULT_SVG_WIDTH), 
                                viewBox=gtron.config.DEFAULT_SVG_VIEWBOX)
     tFaceplate = holes_out.path()
-    tFaceplate.push("M-50000,50000 L50000,50000 L50000,-50000 L-50000,-50000 Z") # This is so that we don't get a TypeError
+    # tFaceplate.push("M-50000,50000 L50000,50000 L50000,-50000 L-50000,-50000 Z") 
+    tFaceplate.push("M 0,0") # This is so that we don't get a TypeError
 
     for brd_file in args.brdfile:
         board = EagleBoard(brd_file)

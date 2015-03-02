@@ -58,11 +58,16 @@ class PSVGVisitor(EagleVisitor):
     def popGroup(self):
         self.groupStack.pop()
 
-    def flattenGroup(self):
+    def flattenGroup(self, x=None, y=None):
         first = True
-        xt = yt = 0
         matrices = []
         f = 1
+        if x is not None and y is not None:
+            xt = x
+            yt = y
+        else:
+            xt = yt = 0
+
         # answer = np.matrix([[0],[0],[1]])
         for x in range(1, len(self.groupStack)-1):
             # this is going from the bottom up excluding the last scale(1,-1)
@@ -113,7 +118,7 @@ class PSVGVisitor(EagleVisitor):
                     first = False
 
 
-        base = np.matrix([[0],[0],[1]])
+        base = np.matrix([[xt],[yt],[1]])
         answer = np.dot(f, base)
         return (float(answer[0][0]), float(answer[1][0]))
 
@@ -286,56 +291,97 @@ class PSVGVisitor(EagleVisitor):
                 p = self.dwg.path()
 
             value = index[index.keys()[0]]
-            start = value[0]
+            next = value[0]
+            del value[0]
 
             # add styling if needed for the wire
             style = []
-            if start.get("layer") == "Dimension":
+            if next.get("layer") == "Dimension":
                 dimension_layer = True
-            elif start.get("layer")=="Top":
+            elif next.get("layer")=="Top":
                 style.append(["stroke", "red"])
-            elif start.get("layer")=="Bottom":
+            elif next.get("layer")=="Bottom":
                 style.append(["stroke", "blue"])
 
             for key in CamAttributes(e).keys():
                 adjusted_key = key.replace("_","-")
                 if adjusted_key == "stroke-width":
-                    if float(start.get("width"))>0:
-                        style.append(["stroke-width", start.get("width")])
+                    if float(next.get("width"))>0:
+                        style.append(["stroke-width", next.get("width")])
                     else:
                         style.append([adjusted_key, CamAttributes(e)[key]])
                 else:
                     style.append([adjusted_key, CamAttributes(e)[key]])
-
-            
             if len(style)>0:
                 p.update({"style": ";".join(map(lambda x:":".join(x), style))})
 
-            del value[0]
-            x1 = float(start.get("x1"))
-            x2 = float(start.get("x2"))
-            y1 = float(start.get("y1"))
-            y2 = float(start.get("y2"))
+            # start adding wiring to path
+            x1 = float(next.get("x1"))
+            x2 = float(next.get("x2"))
+            y1 = float(next.get("y1"))
+            y2 = float(next.get("y2"))
+            # dict bookkeeping
             key = "%s, %s" % (x1, y1)
-            if len(value)==0:
+            if len(value)==0: 
                 del index[key]
+            key = "%s, %s" % (x2, y2) # change key to the end of the wire
 
+            # draw out the first wire
             p.push("M" + str(x1) + " " + str(y1))
-            key = "%s, %s" % (x2, y2)
-            while(index.has_key(key)):
-                value = index[key]
-                next = value[0]
-                del value[0]
-                if len(value)==0:
-                    del index[key]
-                x1 = float(next.get("x1"))
-                x2 = float(next.get("x2"))
-                y1 = float(next.get("y1"))
-                y2 = float(next.get("y2"))
-                p.push("L" + str(x1) + " " + str(y1))
-                key = "%s, %s" % (x2, y2)
-            p.push("L" + str(x2) + " " + str(y2))
+            # actually draw the wire path
+            if next.get("curve") and next.get("curve") != "0": # check if curved line
+                # magical math convert eagle arcs into SVG arcs.
+                curve = float(next.get("curve"))
+                sweep = "+" if curve > 0 else "-"
+                # curve = -curve if curve < 0 else curve
+                curve = math.fabs(curve)
+                large_arc = True if curve >= 180 else False
+                diag = math.hypot((x2-x1), (y2-y1))
+                radius = diag/(2*math.sin(math.radians(curve)/2))
 
+                p.push_arc((x2,y2), 0, (radius,radius), large_arc, sweep, True)
+
+            else:
+                p.push("L" + str(x2) + " " + str(y2))
+            
+
+            # do the same thing with the rest of the wires
+            while(index.has_key(key)):
+
+                # fetch info from dict and do some bookkeeping
+                value = index[key] # fetch entry in dict with matching start point
+                next = value[0] # get the first entry in returned value
+                del value[0] # remove that wire from dict
+                if len(value)==0: # remove the key from dict if no more wires in value
+                    del index[key]
+
+                # actually draw the wire path
+                if next.get("curve") and next.get("curve") != "0": # check if curved line
+                    x1 = float(next.get("x1"))
+                    x2 = float(next.get("x2"))
+                    y1 = float(next.get("y1"))
+                    y2 = float(next.get("y2"))
+
+                    # magical math convert eagle arcs into SVG arcs.
+                    curve = float(next.get("curve"))
+                    sweep = "+" if curve > 0 else "-"
+                    # curve = -curve if curve < 0 else curve
+                    curve = math.fabs(curve)
+                    large_arc = True if curve >= 180 else False
+                    diag = math.hypot((x2-x1), (y2-y1))
+                    radius = diag/(2*math.sin(math.radians(curve)/2))
+
+                    p.push_arc((x2,y2), 0, (radius,radius), large_arc, sweep, True)
+                    key = "%s, %s" % (x2, y2)
+
+                else:
+                    x1 = float(next.get("x1"))
+                    x2 = float(next.get("x2"))
+                    y1 = float(next.get("y1"))
+                    y2 = float(next.get("y2"))
+                    p.push("L" + str(x2) + " " + str(y2))
+                    key = "%s, %s" % (x2, y2)
+            # end while loop
             if attached:
                 # self.styleAndAttach(attached_element, p)
                 attached_element.add(p)
@@ -692,13 +738,25 @@ class PSVGVisitor(EagleVisitor):
             print "rectangle tFaceplate"
             self.preTransform(e, str(x1), str(y1))
             xt, yt = self.flattenGroup()
-            self._tFaceplate.push("M " + str(xt) + "," + str(yt))
-            self._tFaceplate.push("L " + str(xt) + "," + str(yt+y))
-            self._tFaceplate.push("L " + str(xt+x) + "," + str(yt+y))
-            self._tFaceplate.push("L " + str(xt+x) + "," + str(yt))
-            self._tFaceplate.push("L " + str(xt) + "," + str(yt))
-
             self.postTransform(e,str(x1), str(y1))
+
+            self.preTransform(e, str(x1), str(y1+y))
+            x_tl, y_tl = self.flattenGroup()
+            self.postTransform(e,str(x1), str(y1+y))
+
+            self.preTransform(e, str(x1+x), str(y1+y))
+            x_tr, y_tr = self.flattenGroup()
+            self.postTransform(e, str(x1+x), str(y1+y))
+
+            self.preTransform(e, str(x1+y), str(y1))
+            x_br, y_br = self.flattenGroup()
+            self.postTransform(e,str(x1+y), str(y1))
+
+            self._tFaceplate.push("M " + str(xt) + "," + str(yt))
+            self._tFaceplate.push("L " + str(x_tl) + "," + str(y_tl))
+            self._tFaceplate.push("L " + str(x_tr) + "," + str(y_tr))
+            self._tFaceplate.push("L " + str(x_br) + "," + str(y_br))
+            self._tFaceplate.push("L " + str(xt) + "," + str(yt))
         
     ########################################
 
