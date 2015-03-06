@@ -42,6 +42,9 @@ def runGCAM(board,gcam,flipboard,format,output, layer, mirrored, drawOrigins=Fal
     # Transforms the texts within the Elements that aren't part of tName or bName
     UtilVisitors.TranformElementText(EagleLayers(board.getLayers())).visit(board.getRoot())
 
+    # Determines if layer is on the backside of board, and sets onBackside = True if it is
+    UtilVisitors.TopBottomAttr(EagleLayers(board.getLayers())).visit(board.getRoot())
+
     execfile(gcam) # execute the gcam file.
 
     # At this point the the board is full of styling attributes.  Now, we can

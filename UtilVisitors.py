@@ -216,3 +216,20 @@ class TranformElementText(EagleVisitor):
         if len(self._text_set)>0:
             for text_node in self._text_set:
                 e.append(text_node)
+
+class TopBottomAttr(EagleVisitor):
+    _layers = None
+    def __init__(self, layers):
+        self._layers = layers
+
+    def default_pre(self, e):
+        if e.get("layer"):
+            if e.get("layer")[0]=='b' or e.get("layer")[0]=='_b' or e.get("layer")=="Bottom":
+                e.set("onBackside", "True")
+            else:
+                e.set("onBackside", "False")
+
+    def layer_pre(self, e):
+        pass
+    def layer_post(self, e):
+        pass

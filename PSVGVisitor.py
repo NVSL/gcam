@@ -7,26 +7,28 @@ import numpy as np
 
 class PSVGVisitor(EagleVisitor):
     groupStack = []
+    backside_elementStack = []
     dtg = None
     _drawOrigins = False
     _dimension_wires = []
     _dimension_path = None
     _dimension_element = None
 
-    _plain_element = None
     _plain_group = None
+    _baseboard = None
+    _backside = None
 
     _top_wires = []
     _top_path = None
-    
-    _bottom_path = None
     _bottom_wires = []
+    _bottom_path = None
 
     _tFaceplate = None
     _holes = []
     
     def __init__(self, drawOrigins, output, flipBoard, mirrored, tFaceplate=None):
         self.groupStack = []  #these groups represent a stack of coordinate systems we will render items into.
+        self.backside_groupStack = []
         self.dwg = output #output drawing
         self._drawOrigins = drawOrigins  # flag to draw origins (for debugging)
         self.flipBoard = flipBoard  # flag if we are drawing the back side of the board
@@ -35,30 +37,41 @@ class PSVGVisitor(EagleVisitor):
         self._dimension_path = None
         self._dimension_element = None
 
-        self._plain_element = None
         self._plain_group = None
+        self._baseboard = None # group that holds the base board
+        self._backside = None # group that holds all things that belong on the back of the basboard
 
         self._top_wires = [] # these hold the stack of wires from top electrical wiring layer
         self._top_path = self.dwg.path()
-
         self._bottom_wires = [] # these hold the stack of wires from bottom electrical wiring layer
         self._bottom_path = self.dwg.path()
 
-        self._tFaceplate = tFaceplate # this is a collection of board paths for 
+        # === holes related things ===
+        self._tFaceplate = tFaceplate # this is a collection of board paths for tFaceplate 
         self._holes = [] # these hold the stack of holes that need to be drawn on the board
 
-    def pushGroup(self, g):
-        if len(self.groupStack) > 0:
-            self.groupStack[-1].add(g)
-        self.groupStack.append(g)
+    def pushGroup(self, g, group_stack=None):
+        if group_stack is None:
+            group_stack = self.groupStack
 
-    def currentGroup(self):
-        return self.groupStack[-1]
+        if len(group_stack) > 0:
+            group_stack[-1].add(g)
+        group_stack.append(g)
 
-    def popGroup(self):
-        self.groupStack.pop()
+    def currentGroup(self, group_stack=None):
+        if group_stack is None:
+            group_stack = self.groupStack
+        return group_stack[-1]
 
-    def flattenGroup(self, x=None, y=None):
+    def popGroup(self, group_stack=None):
+        if group_stack is None:
+            group_stack = self.groupStack
+        group_stack.pop()
+
+    def flattenGroup(self, x=None, y=None, group_stack=None):
+        if group_stack is None:
+            group_stack = self.groupStack
+
         first = True
         matrices = []
         f = 1
@@ -69,9 +82,9 @@ class PSVGVisitor(EagleVisitor):
             xt = yt = 0
 
         # answer = np.matrix([[0],[0],[1]])
-        for x in range(1, len(self.groupStack)-1):
+        for x in range(1, len(group_stack)-1):
             # this is going from the bottom up excluding the last scale(1,-1)
-            all_transform = self.groupStack[-x]['transform']
+            all_transform = group_stack[-x]['transform']
             
             # must do the rotate transformation first, then the translate
             for transform in all_transform.strip(" ").split(" ")[::-1]:
@@ -218,45 +231,49 @@ class PSVGVisitor(EagleVisitor):
         rotate = self.computeSVGRotation(element)
         translate = self.computeSVGTranslation(element, x, y)
         if rotate != "" and translate != "":
-            g = self.dwg.g(transform=translate +  " " + rotate)
-            self.pushGroup(g)
+            self.pushGroup(self.dwg.g(transform=translate +  " " + rotate))
+            self.pushGroup(self.dwg.g(transform=translate +  " " + rotate), group_stack=self.backside_groupStack)
         elif rotate != "":
-            g = self.dwg.g(transform=rotate)
-            self.pushGroup(g)
+            self.pushGroup(self.dwg.g(transform=rotate))
+            self.pushGroup(self.dwg.g(transform=rotate), group_stack=self.backside_groupStack)
         elif translate != "":
-            g = self.dwg.g(transform=translate)
-            self.pushGroup(g)
+            self.pushGroup(self.dwg.g(transform=translate))
+            self.pushGroup(self.dwg.g(transform=translate), group_stack=self.backside_groupStack)
 
-    def postTransform(self, element,x=None, y=None):
+
+    def postTransform(self, element, x=None, y=None):
         rotate = self.computeSVGRotation(element)
         translate = self.computeSVGTranslation(element, x, y)
         if rotate != "" or translate != "":
             self.popGroup()
+            self.popGroup(group_stack=self.backside_groupStack)
 
     def preTextTransform(self, element, x=None, y=None):
         rotate = self.computeSVGRotation(element)
         translate = self.computeSVGTranslation(element, x, y)
         if rotate != "" and translate != "":
-            g = self.dwg.g(transform=translate +  " " + rotate)
-            self.pushGroup(g)
+            self.pushGroup(self.dwg.g(transform=translate +  " " + rotate))
+            self.pushGroup(self.dwg.g(transform=translate +  " " + rotate), group_stack=self.backside_groupStack)
         elif rotate != "":
-            g = self.dwg.g(transform=rotate)
-            self.pushGroup(g)
+            self.pushGroup(self.dwg.g(transform=rotate))
+            self.pushGroup(self.dwg.g(transform=rotate), group_stack=self.backside_groupStack)
         elif translate != "":
-            g = self.dwg.g(transform=translate)
-            self.pushGroup(g)
+            self.pushGroup(self.dwg.g(transform=translate))
+            self.pushGroup(self.dwg.g(transform=translate), group_stack=self.backside_groupStack)
 
     def postTextTransform(self, element,x=None, y=None):
         rotate = self.computeSVGRotation(element)
         translate = self.computeSVGTranslation(element, x, y)
         if rotate != "" or translate != "":
             self.popGroup()
+            self.popGroup(group_stack=self.backside_groupStack)
 
     def styleAndAttach(self, element, drawingPiece):
-        if element.tag=="signals":
-            print "signals"
         drawingPiece.update(CamAttributes(element))
-        self.currentGroup().add(drawingPiece)
+        if element.get("onBackside")=="True":
+            self.currentGroup(group_stack=self.backside_groupStack).add(drawingPiece)
+        else:
+            self.currentGroup().add(drawingPiece)
         
     def drawOrigin(self):
         if self._drawOrigins:
@@ -265,7 +282,6 @@ class PSVGVisitor(EagleVisitor):
             self.currentGroup().add(l1)
             self.currentGroup().add(l2)
 
-    # jumphere 
     def drawWirePath(self, e, wires, attached=False, attached_element=None):
         index = {}
         dimension_layer = False
@@ -402,7 +418,7 @@ class PSVGVisitor(EagleVisitor):
 
     def drawHoles(self):
         p = self._dimension_path
-        e = self._dimension_element
+        # e = self._dimension_element
         if p:
             for hole_attr in self._holes:
                 x = hole_attr["x"]
@@ -415,25 +431,35 @@ class PSVGVisitor(EagleVisitor):
         # we don't need to styleAndAttach here because we already did that in drawWire for dimension_wires
         # self.styleAndAttach(e, p)
 
+    def drawBackside(self, group_stack):
+        while len(group_stack)>0 :
+            element = group_stack.pop()
+            self._backside.add(element)
+
     #########################################
 
     # *_pre functions are called on the element before decending into it.  If you just define _pre functions you'll get a pre-order traversal. 
     def drawing_pre(self, element):
         print "starting drawing_pre"
         self.pushGroup(self.dwg)
+        self.pushGroup(self.dwg, group_stack=self.backside_groupStack)
         if self.flipBoard:
-            g = self.dwg.g(transform="scale(-1,-1)")
+            self.pushGroup(self.dwg.g(transform="scale(-1,-1)"), group_stack=self.backside_groupStack)
+            self.pushGroup(self.dwg.g(transform="scale(-1,-1)"))
+            
         else:
-            g = self.dwg.g(transform="scale(1,-1)")
-        self.pushGroup(g)
+            self.pushGroup(self.dwg.g(transform="scale(1,-1)"), group_stack=self.backside_groupStack)
+            self.pushGroup(self.dwg.g(transform="scale(1,-1)"))
 
         if self._mirrored:
-            g = self.dwg.g(transform="scale(-1,1)")
-            self.pushGroup(g)
+            self.pushGroup(self.dwg.g(transform="scale(-1,1)"), group_stack=self.backside_groupStack)
+            self.pushGroup(self.dwg.g(transform="scale(-1,1)"))
 
     # *_post functions are called after decending into it and visiting all its decedents.   If you just define _post functions, you'll get a post-order traversal.
     def drawing_post(self, element):
         self.drawHoles()
+        # print "drawing ",len(self.backside_elementStack)," elements on backside of board"
+        # self.drawBackside(self.backside_elementStack)
         # last save
         self.dwg.save()
         print "finished drawing_post"
@@ -761,21 +787,19 @@ class PSVGVisitor(EagleVisitor):
     ########################################
 
     def plain_pre(self, e):
-        pass
+        self._baseboard = self.dwg.g()
+        self.currentGroup().add(self._baseboard)
 
     def plain_post(self, e):
         print "drawing dimension"
         self.preTransform(e)
-        self.drawWirePath(e, self._dimension_wires)#, attached=True, attached_element=self._plain_group)
+        self.drawWirePath(e, self._dimension_wires, attached=True, attached_element=self._baseboard)
 
-        self._plain_element = e
         self._plain_group = self.dwg.g()
         # get rid of the fill rule that comes with the dimension layer
         style = []
         style.append(["fill", "none"])
         self._plain_group.update({"style": ";".join(map(lambda x:":".join(x), style))})
-        # style and attach to the plain element
-        # self.styleAndAttach(e, self._plain_group)
         self.currentGroup().add(self._plain_group)
 
         self.postTransform(e)
