@@ -14,7 +14,8 @@ class PSVGVisitor(EagleVisitor):
     _dimension_path = None
     _dimension_element = None
 
-    _plain_group = None
+    _front_wire = None
+    _back_wire = None
     _baseboard = None
     _backside = None
 
@@ -37,7 +38,8 @@ class PSVGVisitor(EagleVisitor):
         self._dimension_path = None
         self._dimension_element = None
 
-        self._plain_group = None
+        self._front_wire = None
+        self._back_wire = None
         self._baseboard = None # group that holds the base board
         self._backside = None # group that holds all things that belong on the back of the basboard
 
@@ -315,9 +317,9 @@ class PSVGVisitor(EagleVisitor):
             if next.get("layer") == "Dimension":
                 dimension_layer = True
             elif next.get("layer")=="Top":
-                style.append(["stroke", "red"])
+                style.append(["stroke", "#D3D3D3"]) #D3D3D3 pale silver
             elif next.get("layer")=="Bottom":
-                style.append(["stroke", "blue"])
+                style.append(["stroke", "#D3D3D3"]) 
 
             for key in CamAttributes(e).keys():
                 adjusted_key = key.replace("_","-")
@@ -444,15 +446,18 @@ class PSVGVisitor(EagleVisitor):
         self.pushGroup(self.dwg)
         self.pushGroup(self.dwg, group_stack=self.backside_groupStack)
         if self.flipBoard:
-            self.pushGroup(self.dwg.g(transform="scale(-1,-1)"), group_stack=self.backside_groupStack)
+            self._backside = self.dwg.g(transform="scale(-1,-1)")
+            self.pushGroup(self._backside, group_stack=self.backside_groupStack)
             self.pushGroup(self.dwg.g(transform="scale(-1,-1)"))
             
         else:
-            self.pushGroup(self.dwg.g(transform="scale(1,-1)"), group_stack=self.backside_groupStack)
+            self._backside = self.dwg.g(transform="scale(1,-1)")
+            self.pushGroup(self._backside, group_stack=self.backside_groupStack)
             self.pushGroup(self.dwg.g(transform="scale(1,-1)"))
 
         if self._mirrored:
-            self.pushGroup(self.dwg.g(transform="scale(-1,1)"), group_stack=self.backside_groupStack)
+            self._backside = self.dwg.g(transform="scale(-1,1)")
+            self.pushGroup(self._backside, group_stack=self.backside_groupStack)
             self.pushGroup(self.dwg.g(transform="scale(-1,1)"))
 
     # *_post functions are called after decending into it and visiting all its decedents.   If you just define _post functions, you'll get a post-order traversal.
@@ -795,12 +800,15 @@ class PSVGVisitor(EagleVisitor):
         self.preTransform(e)
         self.drawWirePath(e, self._dimension_wires, attached=True, attached_element=self._baseboard)
 
-        self._plain_group = self.dwg.g()
+        self._back_wire = self.dwg.g()
+        self._front_wire = self.dwg.g()
         # get rid of the fill rule that comes with the dimension layer
         style = []
         style.append(["fill", "none"])
-        self._plain_group.update({"style": ";".join(map(lambda x:":".join(x), style))})
-        self.currentGroup().add(self._plain_group)
+        self._front_wire.update({"style": ";".join(map(lambda x:":".join(x), style))})
+        self._back_wire.update({"style": ";".join(map(lambda x:":".join(x), style))})
+        self.currentGroup().add(self._front_wire)
+        self.currentGroup(group_stack=self.backside_groupStack).add(self._back_wire)
 
         self.postTransform(e)
 
@@ -812,8 +820,8 @@ class PSVGVisitor(EagleVisitor):
     def signals_post(self, e):
         print "drawing electrical wiring"
         self.preTransform(e)
-        self.drawWirePath(e, self._top_wires, attached=True, attached_element=self._plain_group)
-        self.drawWirePath(e, self._bottom_wires, attached=True, attached_element=self._plain_group)
+        self.drawWirePath(e, self._top_wires, attached=True, attached_element=self._front_wire)
+        self.drawWirePath(e, self._bottom_wires, attached=True, attached_element=self._back_wire)
         self.postTransform(e)
 
     ########################################

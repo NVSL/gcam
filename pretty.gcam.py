@@ -92,7 +92,7 @@ CamPass(board,
         paths=[".//signals", ".//signal//wire"], 
         layers=[None, "Top"], # "None" is needed here because <signals> doesn't have a layer attr
         default=Style(stroke_width="0.1", 
-                      stroke_opacity="0.4",
+                      stroke_opacity="0.5",
                       stroke_linecap="round",
                       # stroke="red",
                       fill="none",
@@ -101,7 +101,7 @@ CamPass(board,
         paths=[".//signals", ".//signal//wire"], 
         layers=[None, "Bottom"],
         default=Style(stroke_width="0.1", 
-                      stroke_opacity="0.4",
+                      stroke_opacity="0.5",
                       stroke_linecap="round",
                       # stroke="blue",
                       fill="none",
@@ -110,8 +110,8 @@ CamPass(board,
 CamPass(board,
         paths=[".//element//smd"], 
         layers=["Top"],
-        default=Style(fill="red",
-                      fill_opacity="0.4",
+        default=Style(fill="#CCCCCC", # CCCCCC = silver
+                      fill_opacity="0.9",
                       include="1"))
 
 # Find and draw the silk screen
