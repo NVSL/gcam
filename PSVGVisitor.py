@@ -792,6 +792,12 @@ class PSVGVisitor(EagleVisitor):
     ########################################
 
     def plain_pre(self, e):
+        if self._tFaceplate is None:
+            self._tFaceplate = self.dwg.path()
+            self._tFaceplate['id'] = 'gtron-tFaceplate'
+            self._tFaceplate['visibility'] = 'hidden'
+        self.currentGroup().add(self._tFaceplate)
+
         self._baseboard = self.dwg.g()
         self.currentGroup().add(self._baseboard)
 
