@@ -1,5 +1,5 @@
 # To Run:
-# gcam.py --brd /Users/Bonnie/Documents/MS\ Project/demo3.brd --output test-trinket.board.lc.svg --format PSVG --gcam /Users/Bonnie/Gadgets/test/Gadgets/Tools/gcam/pretty.gcam.py
+# pgcam.py --brd /Users/Bonnie/Documents/MS\ Project/demo3.brd --output test-trinket.board.lc.svg --format PSVG --gcam /Users/Bonnie/Gadgets/test/Gadgets/Tools/gcam/pretty.gcam.py
 
 # This file generates the laser cutting information to cut a board mockup.  
 # So it includes the board outline and all the holes in the board, nothing else.
