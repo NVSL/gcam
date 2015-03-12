@@ -44,9 +44,9 @@ class PSVGVisitor(EagleVisitor):
         self._backside = None # group that holds all things that belong on the back of the basboard
 
         self._top_wires = [] # these hold the stack of wires from top electrical wiring layer
-        self._top_path = self.dwg.path()
+        self._top_path = self.dwg.path(d="M 0,0")
         self._bottom_wires = [] # these hold the stack of wires from bottom electrical wiring layer
-        self._bottom_path = self.dwg.path()
+        self._bottom_path = self.dwg.path(d="M 0,0")
 
         # === holes related things ===
         self._tFaceplate = tFaceplate # this is a collection of board paths for tFaceplate 
@@ -306,7 +306,7 @@ class PSVGVisitor(EagleVisitor):
             # a valid value for attribute 'd'
 
             if p is None:
-                p = self.dwg.path()
+                p = self.dwg.path(d="M 0,0")
 
             value = index[index.keys()[0]]
             next = value[0]
@@ -407,7 +407,7 @@ class PSVGVisitor(EagleVisitor):
                 self.styleAndAttach(e, p)
 
             if not dimension_layer:
-                p = self.dwg.path()
+                p = self.dwg.path(d="M 0,0")
 
         # draw holes later in if Dimension
         if dimension_layer:
@@ -426,7 +426,10 @@ class PSVGVisitor(EagleVisitor):
                 x = hole_attr["x"]
                 y = hole_attr["y"]
                 r = hole_attr["radius"]
-                p.push("M " + str(x) + " " + str(y))
+                if self._mirrored:
+                    p.push("M " + str(-x) + " " + str(y))
+                else:
+                    p.push("M " + str(x) + " " + str(y))
                 p.push("m " + str(-r) + " " + str(0))
                 p.push("a " + str(r) + "," + str(r) + " 0 1, 1 " + str(2*r) + " ,0")
                 p.push("a " + str(r) + "," + str(r) + " 0 1, 1 " + str(-2*r) + " ,0")
@@ -463,8 +466,6 @@ class PSVGVisitor(EagleVisitor):
     # *_post functions are called after decending into it and visiting all its decedents.   If you just define _post functions, you'll get a post-order traversal.
     def drawing_post(self, element):
         self.drawHoles()
-        # print "drawing ",len(self.backside_elementStack)," elements on backside of board"
-        # self.drawBackside(self.backside_elementStack)
         # last save
         self.dwg.save()
         print "finished drawing_post"
@@ -531,7 +532,7 @@ class PSVGVisitor(EagleVisitor):
         attr["radius"] = r
         self._holes.append(attr)
         
-        p = self.dwg.path()
+        p = self.dwg.path(d="M 0,0")
         self.pushCirclePath(p, 0, 0, r)
         self.pushCirclePath(p, 0, 0, r/2)
         p.push("Z") 
@@ -561,7 +562,7 @@ class PSVGVisitor(EagleVisitor):
             temp_x = r * math.cos(2 * math.pi * i / n)
             temp_y = r * math.sin(2 * math.pi * i / n)
             p = self.dwg.path(transform="rotate(22.5)")
-            # p = self.dwg.path()
+            # p = self.dwg.path(d="M 0,0")
 
             p.push("M " + str(temp_x) + " " + str(temp_y))
             i+=1
@@ -589,7 +590,7 @@ class PSVGVisitor(EagleVisitor):
             r = diameter/2
             x = 0
             y = 0
-            p = self.dwg.path()
+            p = self.dwg.path(d="M 0,0")
             # starting point
             p.push("M " + str(x-r) + " " + str(y+r))
             # top side
@@ -619,7 +620,7 @@ class PSVGVisitor(EagleVisitor):
             r = diameter/2
             x = 0
             y = 0
-            p = self.dwg.path()
+            p = self.dwg.path(d="M 0,0")
             # starting point
             p.push("M " + str(x-r) + " " + str(y+r))
             # top side
@@ -651,7 +652,7 @@ class PSVGVisitor(EagleVisitor):
             r = diameter/2
             x = 0
             y = 0
-            p = self.dwg.path()
+            p = self.dwg.path(d="M 0,0")
             self.pushCirclePath(p, x, y, r)
 
             # draw the inner circle
@@ -678,7 +679,7 @@ class PSVGVisitor(EagleVisitor):
     def wire_pre(self, e):        
 
         if e.get("layer")=="Top":
-            # drawingPiece = self.dwg.path()
+            # drawingPiece = self.dwg.path(d="M 0,0")
             # drawingPiece.push("M0 0")
             # drawingPiece.update(CamAttributes(e))
             # print CamAttributes(e)
@@ -706,7 +707,7 @@ class PSVGVisitor(EagleVisitor):
             diag = math.hypot((x2-x1), (y2-y1))
             radius = diag/(2*math.sin(math.radians(curve)/2))
 
-            path = self.dwg.path()
+            path = self.dwg.path(d="M 0,0")
             path.push("M " + str(x1) + " " + str(y1))
             path.push_arc((x2,y2), 0, (radius,radius), large_arc, sweep, True)
 
@@ -793,7 +794,7 @@ class PSVGVisitor(EagleVisitor):
 
     def plain_pre(self, e):
         if self._tFaceplate is None:
-            self._tFaceplate = self.dwg.path()
+            self._tFaceplate = self.dwg.path(d="M 0,0")
             self._tFaceplate['id'] = 'gtron-tFaceplate'
             self._tFaceplate['visibility'] = 'hidden'
         self.currentGroup().add(self._tFaceplate)
@@ -824,9 +825,10 @@ class PSVGVisitor(EagleVisitor):
         pass
 
     def signals_post(self, e):
-        print "drawing electrical wiring"
         self.preTransform(e)
+        print "drawing front electrical wiring"
         self.drawWirePath(e, self._top_wires, attached=True, attached_element=self._front_wire)
+        print "drawing back electrical wiring"
         self.drawWirePath(e, self._bottom_wires, attached=True, attached_element=self._back_wire)
         self.postTransform(e)
 

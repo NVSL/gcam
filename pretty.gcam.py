@@ -37,7 +37,7 @@ CamPass(board,
                       "bValue"
                       ],
         default=Style(stroke_width="0.1", 
-                      fill="#006600", 
+                      fill="#006600", #175181 = adafruit blue
                       fill_rule="evenodd",
                       stroke="black",
                       stroke_linecap="round",
@@ -135,7 +135,7 @@ CamPass(board,
         layers=["tNames", "bNames"],
         default=Style(fill="none", 
                       stroke="#CFCFCF",
-                      include="1"),
+                      include="0"),
         refinements={"text" : Style(stroke="none",
                                     fill="#CFCFCF")}
         )
@@ -145,7 +145,7 @@ CamPass(board,
         layers=["tValues", "bValues"],
         default=Style(fill="none", 
                       stroke="#CFCFCF",
-                      include="1"),
+                      include="0"),
         refinements={"text" : Style(stroke="none",
                                     fill="#CFCFCF")}
         )

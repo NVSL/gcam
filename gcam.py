@@ -9,7 +9,6 @@ from EagleBoard import *
 import pipes
 import svgwrite
 from EagleLayers import *
-import svgwrite
 import math
 import SVGVisitor 
 import DXFVisitor 
@@ -28,9 +27,6 @@ def runGCAM(board,gcam,flipboard,format,output, layer, mirrored, drawOrigins=Fal
 
     UtilVisitors.NamedLayers(EagleLayers(board.getLayers())).visit(board.getRoot())  # Replace layer numbers with names 
     UtilVisitors.FlipVisitor(EagleLayers(board.getLayers()), flipboard).visit(board.getRoot()) # flip everything, if we are rendering the backside of the board.
-
-    # UtilVisitors.FillNameVariable(EagleLayers(board.getLayers())).visit(board.getRoot())
-    # UtilVisitors.FillValueVariable(EagleLayers(board.getLayers())).visit(board.getRoot())
 
 
     execfile(gcam) # execute the gcam file.
