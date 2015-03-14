@@ -736,12 +736,17 @@ class PSVGVisitor(EagleVisitor):
         y = float(e.get("y"))
         dx = float(e.get("dx"))
         dy = float(e.get("dy"))
+        r = 0
+        if e.get("roundness"):
+            r = float(e.get("roundness"))
         
         hx = dx/2
         hy = dy/2
         self.preTransform(e)
         rect = self.dwg.rect(insert=(-hx,-hy),
-                             size=(dx, dy))
+                             size=(dx, dy), 
+                             rx=r,
+                             ry=r)
         self.styleAndAttach(e, rect)
         self.postTransform(e)
        
