@@ -443,8 +443,7 @@ class PSVGVisitor(EagleVisitor):
 
     #########################################
 
-    # *_pre functions are called on the element before decending into it.  If you just define _pre functions you'll get a pre-order traversal. 
-    def drawing_pre(self, element):
+    def setup(self):
         print "starting drawing_pre"
         self.pushGroup(self.dwg)
         self.pushGroup(self.dwg, group_stack=self.backside_groupStack)
@@ -463,14 +462,17 @@ class PSVGVisitor(EagleVisitor):
             self.pushGroup(self._backside, group_stack=self.backside_groupStack)
             self.pushGroup(self.dwg.g(transform="scale(-1,1)"))
 
+        self.drawOrigin()
+        
     # *_post functions are called after decending into it and visiting all its decedents.   If you just define _post functions, you'll get a post-order traversal.
-    def drawing_post(self, element):
+    def teardown(self):
         self.drawHoles()
         # last save
         self.dwg.save()
-        print "finished drawing_post"
+        print "finished drawing"
 
     #########################################
+
     def element_pre(self, e):
         print "drawing element: name = %s" % (e.get("name"))
         # print ET.tostring(e)
