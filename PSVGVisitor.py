@@ -169,7 +169,6 @@ class PSVGVisitor(EagleVisitor):
             # SMR###
             if e.get("rot")[0] == "S":
                 if e.get("rot")[1] == "M":
-                    # r = "-" + e.get("rot")[3:]
                     r = -1*float(e.get("rot")[3:])
                     if r != '0' or r != '-0':
                         scale = "scale(-1,1)"
@@ -177,10 +176,9 @@ class PSVGVisitor(EagleVisitor):
                     r = e.get("rot")[2:]
             # MR###
             elif e.get("rot")[0] == "M":
-                # r = "-" + e.get("rot")[2:]
                 r = -1*math.fabs(float(e.get("rot")[2:]))
                 scale = "scale(-1,1)"
-                if float(r) >= 180:
+                if math.fabs(float(r)) >= 180:
                     if e.tag == "text":
                         if e.get('align') is None:
                             e.set('align', 'right')
@@ -886,7 +884,7 @@ class PSVGVisitor(EagleVisitor):
                 ratio = float(e.get("ratio"))
             width = float(e.get("size")) * ratio/100
             text = self.dwg.text(e.text,
-                                 insert=(width,str(float(e.get("size"))/1.5)),
+                                 insert=(0,str(float(e.get("size"))/1.5)),
                                  transform="scale(1.25,-1.25)"
                                  )
         

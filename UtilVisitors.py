@@ -177,15 +177,13 @@ class TranformElementText(EagleVisitor):
 
     def __init__(self, layers):
         self._rot = ""
-        self._scale = ""
-        self._rotate = ""
         self._text_set = []
 
     def text_pre(self, e):
         if self._rot and (e.get("layer")=="tPlace" or e.get("layer")=="bPlace") :
             e.set("rot", self._rot)
             e.set("element_text", "True")
-            self._text_set.append(deepcopy(e))
+            # self._text_set.append(deepcopy(e))
 
     def element_pre(self, e):
         if e.get("rot") is not None:
@@ -212,10 +210,10 @@ class TranformElementText(EagleVisitor):
         else:
             self._rot = None
 
-    def element_post(self, e):
-        if len(self._text_set)>0:
-            for text_node in self._text_set:
-                e.append(text_node)
+    # def element_post(self, e):
+    #     if len(self._text_set)>0:
+    #         for text_node in self._text_set:
+    #             e.append(text_node)
 
 class TopBottomAttr(EagleVisitor):
     _layers = None
