@@ -12,6 +12,9 @@ from EagleLibrary import *
 from EagleLayers import *
 import PSVGVisitor 
 import UtilVisitors
+import Dingo.Component
+
+
 
 def buildPackageSVGs(library,outputDir,gcam,drawOrigins=False):
     
@@ -42,21 +45,28 @@ def buildPackageSVGs(library,outputDir,gcam,drawOrigins=False):
 
     for r in library.getRoot().findall("./drawing/library/packages/package"):
         print "Here"
+        bbox = Dingo.Component.get_bounding_rectangle(r)
+
         out = svgwrite.Drawing(os.path.join(outputDir,(r.get("name")+".svg").replace("/","")),
-                               size=(gtron.config.DEFAULT_SVG_WIDTH,
-                                     gtron.config.DEFAULT_SVG_WIDTH), 
-                               viewBox=gtron.config.DEFAULT_SVG_VIEWBOX)
+                               size=(str(bbox.width), str(bbox.height)))
         PSVGVisitor.PSVGVisitor(drawOrigins, out, False, False).go(r)
+        #Move the entire drawing so it fits within the bounding box
+        #Viewboxes suck
+        translation = "translate({0},{1})".format(-bbox.left(), -bbox.bot())
+        move_group = svgwrite.container.Group(transform=translation)
+        for e in out.elements:
+            move_group.add(e)
+        out.elements = [move_group]
         out.save()
-        
-    
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Tool for auto-generating packages for packages in a library.  For each package named 'FOO', produce <output>/FOO.svg")
     parser.add_argument("--lbr", required=True,  type=str, nargs=1, dest='lbrfile', help="lbr file")
     parser.add_argument("--output", required=True, type=str, nargs=1, dest='output', help="output directory")
     parser.add_argument("--gcam", required=True, type=str, nargs=1, dest='gcamfile', help="gcam file")
-    parser.add_argument("--draworigins", required=False, action='store_true', dest='draworigins', help="Draw origins for sub elments?")
+    parser.add_argument("--draworigins", required=False, action='store_true', dest='draworigins', help="Draw origins for sub elements")
     args = parser.parse_args()
     library = EagleLibrary(args.lbrfile[0])
 
