@@ -13,7 +13,7 @@ from EagleLayers import *
 import PSVGVisitor 
 import UtilVisitors
 import Dingo.Component
-
+from io import StringIO
 
 
 def buildPackageSVGs(library,outputDir,gcam,drawOrigins=False):
@@ -44,21 +44,29 @@ def buildPackageSVGs(library,outputDir,gcam,drawOrigins=False):
     execfile(gcam) # execute the gcam file.
 
     for r in library.getRoot().findall("./drawing/library/packages/package"):
-        print "Here"
         bbox = Dingo.Component.get_bounding_rectangle(r)
+        name = os.path.join(outputDir,(r.get("name")+".svg").replace("/",""))
+        out = svgwrite.Drawing(name, size=(str(bbox.width) + "mm", str(bbox.height) + "mm"))
+        out.viewbox(bbox.left(), bbox.top(), bbox.width, bbox.height)
 
-        out = svgwrite.Drawing(os.path.join(outputDir,(r.get("name")+".svg").replace("/","")),
-                               size=(str(bbox.width), str(bbox.height)))
         PSVGVisitor.PSVGVisitor(drawOrigins, out, False, False).go(r)
-        #Move the entire drawing so it fits within the bounding box
-        #Viewboxes suck
-        translation = "translate({0},{1})".format(-bbox.left(), -bbox.bot())
-        move_group = svgwrite.container.Group(transform=translation)
+        move_group = svgwrite.container.Group()
+        move_group.attribs["class"]= "gtron_package_template";
         for e in out.elements:
             move_group.add(e)
         out.elements = [move_group]
-        out.save()
+        svg_data = out.tostring()
 
+        xml_data = ET.parse(StringIO(svg_data))
+        xml_data.getroot().set("eagle_library",library.name)
+        xml_data.getroot().set("eagle_package",r.get("name"))
+        for i in xml_data.getroot().xpath("//svg:g[@class='gtron_package_template']",
+                                          namespaces={'svg': 'http://www.w3.org/2000/svg'}):
+            i.set("{http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd}insensitive","true")
+
+        ET.SubElement(xml_data.getroot(), "{http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd}namedview",
+                      {"showborder":"false"})
+        xml_data.write(open(name, "w"))
 
 if __name__ == "__main__":
 

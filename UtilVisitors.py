@@ -189,10 +189,7 @@ class TranformElementText(EagleVisitor):
         if e.get("rot") is not None:
             # SMR###
             if e.get("rot")[0] == "S":
-                if e.get("rot")[1] == "M":
-                    self._rot = "R" + str(0)
-                else:
-                    self._rot = "R" + str(0)
+                self._rot = "R" + str(0)
             # MR###
             elif e.get("rot")[0] == "M":
                 if float(e.get("rot")[2:]) > 90 and float(e.get("rot")[2:]) <= 270:
