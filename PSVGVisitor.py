@@ -442,7 +442,7 @@ class PSVGVisitor(EagleVisitor):
     #########################################
 
     def setup(self):
-        print "starting drawing_pre"
+        #print "starting drawing_pre"
         self.pushGroup(self.dwg)
         self.pushGroup(self.dwg, group_stack=self.backside_groupStack)
         if self.flipBoard:
@@ -467,7 +467,7 @@ class PSVGVisitor(EagleVisitor):
         self.drawHoles()
         # last save
         self.dwg.save()
-        print "finished drawing"
+        #print "finished drawing"
 
     #########################################
 
