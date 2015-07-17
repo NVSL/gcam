@@ -27,14 +27,14 @@ CamPass(board,
                 "tDocu",
                 "bDocu"
                       ],
-        default=Style(stroke_width="0.1", 
-                      fill="#006600", #175181 = adafruit blue
+        default=Style(stroke_width="1", 
+                      fill="#00ff00", #175181 = adafruit blue
                       fill_rule="evenodd",
                       stroke="black",
                       stroke_linecap="round",
                       include="1"),
-        refinements={"text" : Style(fill="#CFCFCF",
-                                    stroke="#CFCFCF",
+        refinements={"text" : Style(fill="black",
+                                    stroke="black", #black",
                                     stroke_width="0.1",
                                     ),
                     }
@@ -114,14 +114,14 @@ CamPass(board,
 #        paths=[".//package//*"], 
         paths=[".//package//*"], 
         layers=["tPlace", "bPlace", "tDocu", "bDocu"],
-        default=Style(stroke_width="0.15", 
+        default=Style(stroke_width="0.3", 
                       fill="none", 
-                      stroke="#CFCFCF",
+                      stroke="black",
                       include="1"),
         refinements={"rectangle" : Style(stroke="none",
-                                         fill="#CFCFCF"),
-                     "text" : Style(fill="#CFCFCF",
-                                    stroke="#CFCFCF",
+                                         fill="black"),
+                     "text" : Style(fill="black",
+                                    stroke="black",
                                     stroke_width="0.1",
                                     ),
                     }
@@ -131,10 +131,10 @@ CamPass(board,
         paths=[".//packages//text"], 
         layers=["tNames", "bNames"],
         default=Style(fill="none", 
-                      stroke="#CFCFCF",
+                      stroke="black",
                       include="0"),
         refinements={"text" : Style(stroke="none",
-                                    fill="#CFCFCF")}
+                                    fill="black")}
         )
 
 CamPass(board,
@@ -142,22 +142,21 @@ CamPass(board,
         paths=[".//packages//text"], 
         layers=["tValues", "bValues"],
         default=Style(fill="none", 
-                      stroke="#CFCFCF",
+                      stroke="black",
                       include="0"),
         refinements={"text" : Style(stroke="none",
-                                    fill="#CFCFCF")}
+                                    fill="black")}
         )
 
 CamPass(board,
-#        paths=[".//package//*"], 
         paths=[".//package//*"], 
         layers=["tDocu", "bDocu"],
-        default=Style(stroke_width="0.15", 
+        default=Style(stroke_width="0.3", 
                       fill="none", 
-                      stroke="#CFCFCF",
+                      stroke="black",
                       include="0"),
         refinements={"rectangle" : Style(stroke="none",
-                                         fill="#CFCFCF")}
+                                         fill="black")}
         ) 
 
 CamPass(board,
