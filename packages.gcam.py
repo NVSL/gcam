@@ -126,16 +126,16 @@ CamPass(board,
                                     ),
                     }
         ) 
-CamPass(board,
-#        paths=[".//packages//text"], 
-        paths=[".//packages//text"], 
-        layers=["tNames", "bNames"],
-        default=Style(fill="none", 
-                      stroke="black",
-                      include="0"),
-        refinements={"text" : Style(stroke="none",
-                                    fill="black")}
-        )
+# CamPass(board,
+# #        paths=[".//packages//text"], 
+#         paths=[".//packages//text"], 
+#         layers=["tNames", "bNames"],
+#         default=Style(fill="none", 
+#                       stroke="black",
+#                       include="0"),
+#         refinements={"text" : Style(stroke="none",
+#                                     fill="black")}
+#         )
 
 CamPass(board,
 #        paths=[".//packages//text"], 
