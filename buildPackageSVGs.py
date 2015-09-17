@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import os
+import sys
 
 from lxml import etree as ET
 import svgwrite
@@ -43,6 +44,9 @@ def getSVGForPackage(library, drawOrigins, package, filename):
     r = library.getRoot().find("./drawing/library/packages/package[@name='{}']".format(package))
     assert r is not None
     bbox = Dingo.Component.get_bounding_rectangle(r)
+    if bbox is None:
+        sys.stderr.write("{0} has no bounding box\n".format(package))
+        return
     out = svgwrite.Drawing(filename, size=(str(bbox.width) + "mm", str(bbox.height) + "mm"))
     out.viewbox(bbox.left(), bbox.top(), bbox.width, bbox.height)
 
@@ -72,7 +76,7 @@ def buildPackageSVGs(libname,outputDir,gcam,drawOrigins=False):
     # the library.  Now, we can style/manipulate/etc. each of the instances
     # independently.
 
-    library = preprocessLibrary(EagleLibrary(libname), gcam);
+    library = preprocessLibrary(libname, gcam);
 
     for r in library.getRoot().findall("./drawing/library/packages/package"):
         name = os.path.join(outputDir,(r.get("name")+".svg").replace("/",""))
@@ -80,7 +84,6 @@ def buildPackageSVGs(libname,outputDir,gcam,drawOrigins=False):
         
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description="Tool for auto-generating packages for packages in a library.  For each package named 'FOO', produce <output>/FOO.svg")
     parser.add_argument("--lbr", required=True,  type=str, nargs=1, dest='lbrfile', help="lbr file")
     parser.add_argument("--output", required=True, type=str, nargs=1, dest='output', help="output directory")
