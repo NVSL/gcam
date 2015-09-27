@@ -9,8 +9,8 @@ import svgwrite
 from GadgetCAM import *
 import GadgetronConfig as gtron
 
-from EagleLibrary import *
-from EagleLayers import *
+from EagleUtil.EagleLibrary import *
+from EagleUtil.EagleLayers import *
 import PSVGVisitor 
 import UtilVisitors
 import Dingo.Component

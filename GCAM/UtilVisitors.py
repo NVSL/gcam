@@ -1,5 +1,5 @@
-from EagleVisitor import *
-from EagleError import *
+from EagleUtil.EagleVisitor import *
+from EagleUtil.EagleError import *
 from copy import deepcopy
 
 

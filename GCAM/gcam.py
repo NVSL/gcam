@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 import argparse
-import argparse
 from lxml import etree as ET
 #from lxml import etree as ET;
 import sys
-from EagleLibrary import *
-from EagleBoard import *
+from EagleUtil.EagleLibrary import *
+from EagleUtil.EagleBoard import *
 import pipes
 import svgwrite
-from EagleLayers import *
+from EagleUtil.EagleLayers import *
 import math
 import SVGVisitor 
 import DXFVisitor 
@@ -42,9 +41,7 @@ def runGCAM(board,gcam,flipboard,format,output, layer, mirrored, drawOrigins=Fal
     else:
         print "Unknownformaton format: " + format
         assert(False)
-
-if __name__ == "__main__":
-
+def main(argv=None):
     parser = argparse.ArgumentParser(description="Tool for auto-generating packages for breakout boards")
     parser.add_argument("--brd", required=True,  type=str, nargs=1, dest='brdfile', help="brd file")
     parser.add_argument("--output", required=True, type=str, nargs=1, dest='output', help="output file")
@@ -84,4 +81,6 @@ if __name__ == "__main__":
     else:
         print "Unkwon format: " + args.format[0]
         assert(False)
-            
+
+if __name__ == "__main__":
+    main()

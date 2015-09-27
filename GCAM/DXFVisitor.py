@@ -1,5 +1,5 @@
 from lxml import etree as ET
-from EagleVisitor import *
+from EagleUtil.EagleVisitor import *
 from GadgetCAM import *
 import svgwrite
 from  math import *
@@ -8,7 +8,7 @@ import DXFTemplate
 from matrix import *
 from Homogeneous2D import *
 import StringIO
-import EagleError
+import EagleUtil.EagleError
 import DXFUtil
 
 class DXFVisitor(EagleVisitor):

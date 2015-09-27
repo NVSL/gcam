@@ -1,5 +1,5 @@
-from EagleBoard import *
-from EagleLayers import *
+from EagleUtil.EagleBoard import *
+from EagleUtil.EagleLayers import *
 
 def Style(**args):
     return args

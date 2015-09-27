@@ -1,5 +1,5 @@
 from lxml import etree as ET
-from EagleVisitor import *
+from EagleUtil.EagleVisitor import *
 from GadgetCAM import *
 import svgwrite
 import math
