@@ -6,8 +6,8 @@ build:
 	  echo python ./setup.py build develop;\
 	  python ./setup.py build develop;\
 	else\
-	  echo python ./setup.py build;\
-	  python ./setup.py build;\
+	  echo python ./setup.py build develop;\
+	  sudo python ./setup.py build develop;\
 	fi
 
 test:
