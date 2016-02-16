@@ -13,7 +13,7 @@ from EagleUtil.EagleLibrary import *
 from EagleUtil.EagleLayers import *
 import PSVGVisitor 
 import UtilVisitors
-import Dingo.Component
+import Dingo.DingoComponent as Component
 from io import StringIO
 
 def preprocessLibrary(libname, gcam):
