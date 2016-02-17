@@ -45,7 +45,8 @@ setup(name='gcam',
       install_requires=["lxml>=3.4.2",  "Sphinx>=1.3.1", "svgwrite", "Jinja2>=2.7.3"],
       entry_points={
           'console_scripts': [
-            'gcam = GCAM.gcam:main',
+              'gcam = GCAM.gcam:main',
+              'gcam2 = GCAM.gcam2:main',
         ]
         },
       keywords = "PCB Eagle CAD printed circuit boards schematic electronics CadSoft",
