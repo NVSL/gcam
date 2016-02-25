@@ -47,6 +47,7 @@ setup(name='gcam',
           'console_scripts': [
               'gcam = GCAM.gcam:main',
               'gcam2 = GCAM.gcam2:main',
+              'addPackageTo2DModel = GCAM.addPackageTo2DModel:main',
         ]
         },
       keywords = "PCB Eagle CAD printed circuit boards schematic electronics CadSoft",
