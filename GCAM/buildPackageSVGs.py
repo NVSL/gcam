@@ -14,6 +14,7 @@ from EagleUtil.EagleLayers import *
 import PSVGVisitor 
 import UtilVisitors
 import Dingo.DingoComponent as Component
+import Dingo
 from io import StringIO
 
 def preprocessLibrary(libname, gcam):
@@ -43,7 +44,7 @@ def preprocessLibrary(libname, gcam):
 def getSVGForPackage(library, drawOrigins, package, filename):
     r = library.getRoot().find("./drawing/library/packages/package[@name='{}']".format(package))
     assert r is not None
-    bbox = Dingo.Component.get_bounding_rectangle(r)
+    bbox = Dingo.DingoComponent.get_bounding_rectangle(r)
     if bbox is None:
         sys.stderr.write("{0} has no bounding box\n".format(package))
         return
