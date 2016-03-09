@@ -27,6 +27,7 @@ def package2svg(package):
     
     #    tPlace = tPlace.difference(tStop)
 
+
     results = [
                polygon_as_svg(affinity.scale(topCopper, yfact=-1, origin=(0,0)), style="fill:#ffb600"),
                polygon_as_svg(affinity.scale(tPlace   , yfact=-1, origin=(0,0)), style="stroke:#000000; stroke-width:0.05mm;fill:none")]

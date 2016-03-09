@@ -30,12 +30,14 @@ def brd2svg(brd):
     results = [polygon_as_svg(board, style="fill:#fff49a"),
                polygon_as_svg(topCopper, style="fill:#ffb600"),
                polygon_as_svg(mask, style="fill:#00ff00; fill-opacity:0.5"),
-               polygon_as_svg(tPlace, style="stroke:#ffffff; stroke-width:0.1mm;fill:none")]
+               polygon_as_svg(tPlace, style="fill:white")
+               #polygon_as_svg(tPlace, style="stroke:#ffffff; stroke-width:0.1mm;fill:none")
+    ]
                
     svg = """<svg><defs>
     <link href="my-style.css" type="text/css" rel="stylesheet" 
     xmlns="http://www.w3.org/1999/xhtml"/>
-    </defs>{}</svg>""".format("".join(results))
+    </defs><g transform="scale(1,-1)">{}</g></svg>""".format("".join(results))
 
     return svg
     
