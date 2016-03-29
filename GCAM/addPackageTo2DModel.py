@@ -14,25 +14,46 @@ from OverlapCheck import *
 import shapely.geometry as shapes
 from lxml import etree as ET
 import shapely.affinity as affinity
+import InkscapeNS
+
 
 def package2svg(package):
     topCopper = package.get_geometry("Top")
     tPlace = package.get_geometry("tPlace")
+    tValues = package.get_geometry("tValues")
+    tNames = package.get_geometry("tNames")
     holes =  package.get_geometry("Holes")
     tStop = package.get_geometry(layer_query="tStop")
 
     topCopper = topCopper.difference(holes)
 
     mask = tStop
-    
-    #    tPlace = tPlace.difference(tStop)
-
 
     results = [
-               polygon_as_svg(affinity.scale(topCopper, yfact=-1, origin=(0,0)), style="fill:#ffb600"),
-               polygon_as_svg(affinity.scale(tPlace   , yfact=-1, origin=(0,0)), style="stroke:#000000; stroke-width:0.05mm;fill:none")]
-    svg = """<g><g>{}</g><g>{}</g></g>""".format(results[0], results[1])
+        polygon_as_svg(affinity.scale(topCopper, yfact=-1, origin=(0,0)), style="fill:#ffb600"),
+        polygon_as_svg(affinity.scale(tPlace   , yfact=-1, origin=(0,0)), style="fill:white"),
+        polygon_as_svg(affinity.scale(tNames   , yfact=-1, origin=(0,0)), style="fill:white"),
+        polygon_as_svg(affinity.scale(tValues   , yfact=-1, origin=(0,0)), style="fill:white"),
+    ]
     return map(lambda x: ET.fromstring("<g>{}</g>".format(x)),results)
+
+def removePackageFromSVG(svg):
+    # remove old artwork.
+    for g in svg.getroot().xpath(".//svg:g[@class='gtron-package-artwork']",
+                                 namespaces=InkscapeNS.namespaces):
+        g.getparent().remove(g)
+    for g in svg.getroot().xpath(".//svg:g[@class='gtron-package-silkscreen']",
+                                 namespaces=InkscapeNS.namespaces):
+        g.getparent().remove(g)
+
+def addPackageToSVG(svg, package):
+
+    #Add the current version.
+    group = ET.Element("g")
+    group.set("class", "gtron-package-silkscreen")
+    for i in package2svg(package):
+        group.insert(0, i)
+    svg.getroot().insert(0, group)
     
 def go(argv=None):
     parser = argparse.ArgumentParser(description="Check a design for design rule violations.")
@@ -55,11 +76,8 @@ def go(argv=None):
     assert pack is not None, "Missing package {} in library {}".format(args.lbr, args.pack)
 
     svg = ET.parse(args.model)
-    for i in package2svg(pack):
-        svg.getroot().insert(0, i)
-    #ET.dump(svg.getroot())
-    
-    #svg.write("test.svg")
+    removePackageFromSVG(svg)
+    addPackageToSVG(svg, pack)
     svg.write(args.model)
     
 def main():
