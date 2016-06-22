@@ -35,8 +35,7 @@ def brd2svg(brd):
     ]
                
     svg = """<svg><defs>
-    <link href="my-style.css" type="text/css" rel="stylesheet" 
-    xmlns="http://www.w3.org/1999/xhtml"/>
+    <link href="my-style.css" type="text/css" rel="stylesheet" xmlns="http://www.w3.org/1999/xhtml"/>
     </defs><g transform="scale(1,-1)">{}</g></svg>""".format("".join(results))
 
     return svg
