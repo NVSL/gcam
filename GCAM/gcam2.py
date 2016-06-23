@@ -16,9 +16,9 @@ import shapely.geometry as shapes
 def brd2svg(brd):
     whole_board = brd.get_geometry("Dimension", polygonize_wires=SEFP.POLYGONIZE_STRICT)
     topCopper = brd.get_geometry("Top")
-    tPlace = brd.get_geometry("tPlace")
+    tPlace = brd.get_geometry("tPlace", apply_width=False)#["tPlace", "tNames"])
     holes =  brd.get_geometry("Holes")
-    tStop = brd.get_geometry(layer_query="tStop")
+    tStop = brd.get_geometry("tStop")
 
     board = whole_board.difference(holes)
     topCopper = topCopper.difference(holes)
@@ -30,11 +30,12 @@ def brd2svg(brd):
     results = [polygon_as_svg(board, style="fill:#fff49a"),
                polygon_as_svg(topCopper, style="fill:#ffb600"),
                polygon_as_svg(mask, style="fill:#00ff00; fill-opacity:0.5"),
-               polygon_as_svg(tPlace, style="fill:white")
+               polygon_as_svg(tPlace, style="stroke:white; stroke-width:0.05mm;stroke-linecap:round;fill:none")#, close_paths=False)
                #polygon_as_svg(tPlace, style="stroke:#ffffff; stroke-width:0.1mm;fill:none")
     ]
                
-    svg = """<svg><defs>
+    svg = """<svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
     <link href="my-style.css" type="text/css" rel="stylesheet" xmlns="http://www.w3.org/1999/xhtml"/>
     </defs><g transform="scale(1,-1)">{}</g></svg>""".format("".join(results))
 

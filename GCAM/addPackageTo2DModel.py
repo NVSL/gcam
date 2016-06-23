@@ -19,9 +19,9 @@ import InkscapeNS
 
 def package2svg(package):
     topCopper = package.get_geometry("Top")
-    tPlace = package.get_geometry("tPlace")
-    tValues = package.get_geometry("tValues")
-    tNames = package.get_geometry("tNames")
+    tPlace = package.get_geometry("tPlace", apply_width=False)
+    tValues = package.get_geometry("tValues", apply_width=False)
+    tNames = package.get_geometry("tNames", apply_width=False)
     holes =  package.get_geometry("Holes")
     tStop = package.get_geometry(layer_query="tStop")
 
@@ -31,9 +31,9 @@ def package2svg(package):
 
     results = [
         polygon_as_svg(affinity.scale(topCopper, yfact=-1, origin=(0,0)), style="fill:#ffb600"),
-        polygon_as_svg(affinity.scale(tPlace   , yfact=-1, origin=(0,0)), style="fill:white"),
-        polygon_as_svg(affinity.scale(tNames   , yfact=-1, origin=(0,0)), style="fill:white"),
-        polygon_as_svg(affinity.scale(tValues   , yfact=-1, origin=(0,0)), style="fill:white"),
+        polygon_as_svg(affinity.scale(tPlace   , yfact=-1, origin=(0,0)), style="stroke:white; stroke-width:0.05mm;stroke-linecap:round;fill:none"),
+        polygon_as_svg(affinity.scale(tNames   , yfact=-1, origin=(0,0)), style="stroke:white; stroke-width:0.05mm;stroke-linecap:round;fill:none"),
+        polygon_as_svg(affinity.scale(tValues   , yfact=-1, origin=(0,0)), style="stroke:white; stroke-width:0.05mm;stroke-linecap:round;fill:none")
     ]
     return map(lambda x: ET.fromstring("<g>{}</g>".format(x)),results)
 
