@@ -1,21 +1,14 @@
 #!/usr/bin/env python
 import argparse
-import os
-import sys
-
-from lxml import etree as ET
-import svgwrite
-
-from GadgetCAM import *
-import GadgetronConfig as gtron
-
-from EagleUtil.EagleLibrary import *
-from EagleUtil.EagleLayers import *
-import PSVGVisitor 
-import UtilVisitors
-import Dingo.DingoComponent as Component
-import Dingo
 from io import StringIO
+
+import Dingo
+import svgwrite
+from EagleUtil.EagleLayers import *
+from EagleUtil.EagleLibrary import *
+
+import PSVGVisitor
+import UtilVisitors
 
 def preprocessLibrary(libname, gcam):
     library = EagleLibrary(libname)

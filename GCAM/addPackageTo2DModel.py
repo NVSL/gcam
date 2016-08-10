@@ -1,20 +1,14 @@
 #!/usr/bin/env python
 import argparse
-import pipes
-import svgwrite
-import math
-import Swoop
-from Swoop import From
-from Swoop.ext.ShapelySwoop import GeometryDump as GeoDump
-from Swoop.ext.ShapelySwoop import ShapelyEagleFilePart as SEFP
-from Swoop.ext.ShapelySwoop import polygon_as_svg
-from shapely.geometry import *
 import sys
-from OverlapCheck import *
-import shapely.geometry as shapes
-from lxml import etree as ET
+
+import Swoop
 import shapely.affinity as affinity
-import InkscapeNS
+from GadgetMaker2.OverlapCheck import *
+from Swoop.ext.ShapelySwoop import polygon_as_svg
+from lxml import etree as ET
+
+from SVGUtil import InkscapeNS
 
 
 def package2svg(package):

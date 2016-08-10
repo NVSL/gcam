@@ -1,21 +1,16 @@
 #!/usr/bin/env python
 import argparse
-from lxml import etree as ET
-#from lxml import etree as ET;
-import sys
-from EagleUtil.EagleLibrary import *
-from EagleUtil.EagleBoard import *
-import pipes
+
 import svgwrite
-from EagleUtil.EagleLayers import *
-import math
-import SVGVisitor 
-import DXFVisitor 
-import DXFSVGVisitor 
+
+import DXFSVGVisitor
+import DXFTemplate
+import DXFVisitor
+import SVGVisitor
 import UtilVisitors
 from GadgetCAM import *
-import DXFTemplate 
-import GadgetronConfig as gtron
+from Gadgetron.Gadgetron import GadgetronConfig as gtron
+
 
 def runGCAM(board,gcam,flipboard,format,output, layer, mirrored, drawOrigins=False):
     
