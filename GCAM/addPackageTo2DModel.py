@@ -8,7 +8,7 @@ from GadgetMaker2.OverlapCheck import *
 from Swoop.ext.ShapelySwoop import polygon_as_svg
 from lxml import etree as ET
 
-from SVGUtil import InkscapeNS
+from SVGUtil.SVGUtils import InkscapeNS
 
 
 def package2svg(package):
