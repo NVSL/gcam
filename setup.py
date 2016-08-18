@@ -42,7 +42,7 @@ setup(name='gcam',
       package_data={
           "" : ["*.rst"],
       },
-      install_requires=["lxml>=3.4.2",  "Sphinx>=1.3.1", "svgwrite", "Jinja2>=2.7.3", "numpy", 'shapely'],
+      install_requires=["lxml=3.6.2",  "Sphinx>=1.3.1", "svgwrite", "Jinja2>=2.7.3", "numpy", 'shapely'],
       entry_points={
           'console_scripts': [
               'gcam = GCAM.gcam:main',
