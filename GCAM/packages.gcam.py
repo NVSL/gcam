@@ -7,6 +7,8 @@
 
 # setting "include" ensures that the visitor will visit this element.  
 # This first pass just makes sure that visitor doesn't stop immediately.  
+from GadgetCAM import *
+
 CamPass(board,
         paths=["./drawing", ".//element"],
         layers=[None],

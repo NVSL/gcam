@@ -2,7 +2,7 @@
 import argparse
 from io import StringIO
 
-import Dingo
+from Dingo import DingoComponent
 import svgwrite
 from EagleUtil.EagleLayers import *
 from EagleUtil.EagleLibrary import *
@@ -37,7 +37,7 @@ def preprocessLibrary(libname, gcam):
 def getSVGForPackage(library, drawOrigins, package, filename):
     r = library.getRoot().find("./drawing/library/packages/package[@name='{}']".format(package))
     assert r is not None
-    bbox = Dingo.DingoComponent.get_bounding_rectangle(r)
+    bbox = DingoComponent.get_bounding_rectangle(r)
     if bbox is None:
         sys.stderr.write("{0} has no bounding box\n".format(package))
         return
